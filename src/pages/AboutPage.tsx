@@ -245,17 +245,13 @@ export function AboutPage() {
               {/* Outer ambient glow */}
               <div className="absolute inset-0 bg-emerald-500/[0.03] rounded-3xl blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
               
-              {/* Polaroid-style premium frame */}
-              <div className="bg-zinc-900/60 p-4 rounded-3xl border border-zinc-800/80 backdrop-blur-md shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative overflow-hidden transition-all duration-500 hover:border-[#DEDBC8]/20">
+              {/* Clean borderless image container */}
+              <div className="relative overflow-hidden rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,0.85)] transition-all duration-500">
                 <img 
                   src="/assets/about/hero.png" 
                   alt="KOMUNITAS AI Illustration" 
-                  className="w-full aspect-[4/3] object-cover rounded-2xl border border-zinc-800 bg-zinc-950 transition-transform duration-700 group-hover:scale-[1.02]"
+                  className="w-full aspect-[4/3] object-cover rounded-2xl bg-zinc-950 transition-transform duration-700 group-hover:scale-[1.02]"
                 />
-                <div className="pt-3.5 pb-1 flex justify-between items-center text-[10px] text-zinc-500 font-mono tracking-wider px-1">
-                  <span>KOMUNITAS PLATFORM v2.5</span>
-                  <span>AI INFERENCE ENGINE</span>
-                </div>
               </div>
             </div>
           </motion.div>

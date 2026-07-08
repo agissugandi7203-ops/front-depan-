@@ -514,38 +514,38 @@ export function HomePage() {
 
           {/* Hero content — studio-style bold, left-aligned grid */}
           <div className="relative z-10 flex flex-col min-h-[92vh] justify-end pb-16 md:pb-24">
-            <div className="max-w-5xl w-full mx-auto px-6 sm:px-12 md:px-16 flex flex-col items-start text-left">
+            <div className="max-w-5xl w-full mx-auto px-6 sm:px-12 md:px-16 flex flex-col items-start justify-end text-left h-full">
               
-              {/* Headline with Parallax */}
-              <motion.div style={{ y: titleY }} className="w-full">
-                <span className="text-[10px] font-bold tracking-[0.2em] font-mono text-[#DEDBC8] uppercase block mb-5">
-                  PORTAL INFORMASI & VALIDASI ADUAN
-                </span>
-                <h1 className="text-[2.6rem] sm:text-[4.5rem] lg:text-[5.5rem] leading-[0.9] font-black text-white tracking-[-0.03em] uppercase">
-                  MENYUARAKAN <br />
-                  <span className="font-serif italic font-normal text-[#DEDBC8] lowercase tracking-normal">aspirasi warga,</span> <br />
-                  MENYINGKAP FAKTA.
-                </h1>
-              </motion.div>
-
-              {/* Asymmetric Bottom Grid (Subtitle & CTA Button) */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end mt-10 md:mt-14 w-full">
+              {/* Title, Subtitle, and CTA Stacked on the Bottom Left */}
+              <div className="max-w-xl flex flex-col items-start gap-4">
                 
-                {/* Description Subtext with Parallax */}
-                <motion.div style={{ y: subtitleY }} className="md:col-span-7">
-                  <p className="text-[13.5px] md:text-[14.5px] text-zinc-400 font-light leading-relaxed max-w-sm">
+                {/* Headline with Parallax */}
+                <motion.div style={{ y: titleY }} className="space-y-2">
+                  <span className="text-[9px] font-bold tracking-[0.2em] font-mono text-[#DEDBC8] uppercase block">
+                    PORTAL INFORMASI & VALIDASI ADUAN
+                  </span>
+                  <h1 className="text-[2rem] sm:text-[2.8rem] lg:text-[3.4rem] leading-[1.0] font-black text-white tracking-[-0.03em] uppercase">
+                    MENYUARAKAN <br />
+                    <span className="font-serif italic font-normal text-[#DEDBC8] lowercase tracking-normal">aspirasi warga,</span> <br />
+                    MENYINGKAP FAKTA.
+                  </h1>
+                </motion.div>
+
+                {/* Subtitle with Parallax */}
+                <motion.div style={{ y: subtitleY }}>
+                  <p className="text-[12.5px] text-zinc-400 font-light leading-relaxed max-w-sm">
                     Platform kolaboratif berbasis AI warga terintegrasi. Membantu Anda menelusuri birokrasi, melakukan cek fakta berita secara instan, dan memetakan aduan sarana publik secara real-time.
                   </p>
                 </motion.div>
 
                 {/* CTA Button with Parallax */}
-                <motion.div style={{ y: ctaY }} className="md:col-span-5 flex justify-start md:justify-end">
+                <motion.div style={{ y: ctaY }} className="pt-1.5">
                   <button
                     onClick={handleStartChat}
-                    className="group flex items-center gap-2 bg-[#DEDBC8] hover:bg-white text-zinc-950 text-[12.5px] font-bold px-6 py-3.5 rounded-full transition-all active:scale-[0.98] shadow-2xl cursor-pointer"
+                    className="group flex items-center gap-2 bg-[#DEDBC8] hover:bg-white text-zinc-950 text-[12px] font-bold px-5 py-3 rounded-full transition-all active:scale-[0.98] shadow-2xl cursor-pointer"
                   >
                     Mulai Konsultasi AI
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </button>
                 </motion.div>
 
