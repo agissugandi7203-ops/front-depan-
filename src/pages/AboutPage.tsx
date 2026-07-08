@@ -196,7 +196,7 @@ export function AboutPage() {
       <Navbar activeItem="Tentang" onCtaClick={handleStartChat} />
 
       {/* ── Main Content Container ── */}
-      <main className="relative z-10 flex-1 max-w-5xl w-full mx-auto px-6 pt-28 pb-28 flex flex-col gap-14">
+      <main className="relative z-10 flex-1 max-w-5xl w-full mx-auto px-6 pt-20 pb-28 flex flex-col gap-14">
         
         {/* ── Parallax Scrolling Section (Replacing video hero) ── */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-8">

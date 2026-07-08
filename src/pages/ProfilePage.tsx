@@ -158,7 +158,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <Navbar activeItem="Profil" />
 
-      <div className="max-w-2xl mx-auto px-4 pt-28 pb-8 space-y-5">
+      <div className="max-w-2xl mx-auto px-4 pt-20 pb-8 space-y-5">
         {/* Avatar + Name Card */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
