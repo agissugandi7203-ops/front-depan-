@@ -237,24 +237,21 @@ export function AboutPage() {
             </div>
           </motion.div>
 
-          {/* Right Frame Image Block (Parallax Effect) */}
-          <motion.div 
-            style={{ y: imageY, rotate: imageRotate }}
-            className="lg:col-span-5 flex justify-center lg:justify-end"
-          >
-            <div className="relative group max-w-[360px] lg:max-w-full">
+          {/* Right Frame Component Block */}
+          <div className="lg:col-span-5 flex justify-center lg:justify-end w-full">
+            <div className="relative group max-w-[360px] lg:max-w-full w-full">
               {/* Outer ambient glow */}
               <div className="absolute inset-0 bg-emerald-500/[0.03] rounded-3xl blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
               
               {/* Clean borderless interactive BotDetection container */}
-              <div className="transition-all duration-500 hover:scale-[1.02]">
+              <div className="transition-all duration-500 hover:scale-[1.02] w-full">
                 <BotDetection 
                   cardTitle="Verifikasi Deteksi AI Warga"
                   cardDescription="Portal KOMUNITAS didukung perlindungan deteksi bot mutakhir untuk mencegah misinformasi terorganisir di wilayah Anda secara real-time."
                 />
               </div>
             </div>
-          </motion.div>
+          </div>
 
         </section>
 
