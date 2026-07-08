@@ -514,7 +514,7 @@ export function HomePage() {
 
           {/* Hero content — studio-style bold, left-aligned grid */}
           <div className="relative z-10 flex flex-col min-h-[92vh] justify-end pb-16 md:pb-24">
-            <div className="max-w-5xl w-full mx-auto px-6 sm:px-12 md:px-16 flex flex-col items-end justify-end text-right h-full">
+            <div className="max-w-full w-full px-6 sm:px-10 md:pr-12 lg:pr-20 flex flex-col items-end justify-end text-right h-full">
               
               {/* Title, Subtitle, and CTA Stacked on the Bottom Right */}
               <div className="max-w-xl flex flex-col items-end gap-4">

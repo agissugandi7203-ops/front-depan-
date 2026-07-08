@@ -24,6 +24,7 @@ import { Navbar } from '@/components/Navbar'
 import { useChatStore } from '@/store/chatStore'
 import { useAuthStore } from '@/store/authStore'
 import Footer4Col from '@/components/ui/footer-column'
+import BotDetection from '@/components/ui/bot-detection'
 
 // Tabs definitions
 const tabs = [
@@ -245,12 +246,11 @@ export function AboutPage() {
               {/* Outer ambient glow */}
               <div className="absolute inset-0 bg-emerald-500/[0.03] rounded-3xl blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
               
-              {/* Clean borderless image container */}
-              <div className="relative overflow-hidden rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,0.85)] transition-all duration-500">
-                <img 
-                  src="/assets/about/hero.png" 
-                  alt="KOMUNITAS AI Illustration" 
-                  className="w-full aspect-[4/3] object-cover rounded-2xl bg-zinc-950 transition-transform duration-700 group-hover:scale-[1.02]"
+              {/* Clean borderless interactive BotDetection container */}
+              <div className="relative overflow-hidden rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,0.85)] transition-all duration-500 hover:scale-[1.01] bg-black">
+                <BotDetection 
+                  cardTitle="Verifikasi Deteksi AI Warga"
+                  cardDescription="Portal KOMUNITAS didukung perlindungan deteksi bot mutakhir untuk mencegah misinformasi terorganisir di wilayah Anda secara real-time."
                 />
               </div>
             </div>
