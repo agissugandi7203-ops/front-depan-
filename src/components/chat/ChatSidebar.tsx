@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { useChatStore } from '@/store/chatStore'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -30,7 +30,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   lainnya:    'Lainnya',
 }
 
-export function ChatSidebar({ onOpenReportModal, activeReportId, onSelectReport }: ChatSidebarProps) {
+export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, activeReportId, onSelectReport }: ChatSidebarProps) {
   const { 
     sessions, 
     currentSessionId, 
@@ -376,4 +376,6 @@ export function ChatSidebar({ onOpenReportModal, activeReportId, onSelectReport 
       </Dialog>
     </div>
   )
-}
+})
+
+ChatSidebar.displayName = 'ChatSidebar'

@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowLeft, Search, Filter, MapPin, Calendar, User, Phone, 
-  Loader2, FileText, Clock, AlertTriangle, Image as ImageIcon, MessageSquare
+  Loader2, FileText, Clock, AlertTriangle, Image as ImageIcon, MessageSquare, Menu, X
 } from 'lucide-react'
 import { adminService } from '@/services/api'
 import { useAuthStore } from '@/store/authStore'
+import { useAuthModalStore } from '@/store/authModalStore'
 import { useToast } from '@/components/ui/toast'
 import { getWsUrl } from '@/lib/apiConfig'
 import { cn } from '@/lib/utils'
@@ -72,7 +73,9 @@ export function AllReports() {
   const [provinceCityMap, setProvinceCityMap] = useState<Record<string, string[]>>({})
   const [cityDistrictMap, setCityDistrictMap] = useState<Record<string, string[]>>({})
 
-  const { user } = useAuthStore()
+  const { user, logout, isAuthenticated } = useAuthStore()
+  const { openModal } = useAuthModalStore()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -321,40 +324,238 @@ export function AllReports() {
       <div className="pointer-events-none absolute -right-40 -bottom-40 h-[600px] w-[600px] rounded-full bg-zinc-900/10 blur-[150px]" />
 
       {/* ─── HEADER ────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate('/')}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 text-zinc-400 hover:text-white transition-all cursor-pointer active:scale-95"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <div>
-            <div className="flex items-center gap-2 select-none">
-              <img src="/assets/logo/komunitas.png" alt="KOMUNITAS Logo" className="h-5 w-5 object-contain" />
-              <span className="text-sm font-bold uppercase tracking-wider text-zinc-100">KOMUNITAS</span>
-            </div>
-            <h1 className="text-xs text-zinc-500 font-medium tracking-tight mt-0.5">Portal Seluruh Pengaduan Warga Nasional</h1>
-          </div>
+      <header className="sticky top-0 z-50 h-[60px] border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md px-6 md:px-10 flex items-center justify-between">
+        {/* Brand/Logo */}
+        <div 
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2.5 group select-none cursor-pointer"
+        >
+          <img src="/assets/logo/komunitas.png" alt="KOMUNITAS Logo" className="h-7 w-7 object-contain rounded-md transition-opacity group-hover:opacity-85" />
+          <span className="font-semibold text-[15px] tracking-[-0.02em] text-zinc-100">KOMUNITAS</span>
         </div>
 
-        {user && (
-          <div className="hidden sm:flex items-center gap-3">
-            <div className="text-right">
-              <span className="block text-xs font-bold text-zinc-200">{user.nama_lengkap}</span>
-              <span className="text-[9px] uppercase font-mono text-zinc-500 font-bold tracking-wider">[{user.role}]</span>
-            </div>
-            {['admin', 'superadmin', 'petugas'].includes(user.role) && (
-              <button 
-                onClick={() => navigate('/admin')}
-                className="px-3 py-1.5 text-[11px] font-bold tracking-wide rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-950 transition-all cursor-pointer"
+        {/* Navigation links */}
+        <nav className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-7">
+          <button
+            className="text-[13px] text-zinc-400 hover:text-zinc-100 transition-colors tracking-[-0.01em] cursor-pointer"
+            onClick={() => {
+              navigate('/')
+              setTimeout(() => {
+                document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
+              }, 100)
+            }}
+          >
+            Layanan
+          </button>
+          <button
+            className="text-[13px] text-zinc-400 hover:text-zinc-100 transition-colors tracking-[-0.01em] cursor-pointer"
+            onClick={() => {
+              navigate('/')
+              setTimeout(() => {
+                document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })
+              }, 100)
+            }}
+          >
+            Verifikasi
+          </button>
+          <button
+            className="text-[13px] text-zinc-100 font-semibold transition-colors tracking-[-0.01em] cursor-pointer"
+            onClick={() => navigate('/all-reports')}
+          >
+            Semua Aduan
+          </button>
+          <button
+            className="text-[13px] text-zinc-400 hover:text-zinc-100 transition-colors tracking-[-0.01em] cursor-pointer"
+            onClick={() => navigate('/about')}
+          >
+            Tentang
+          </button>
+        </nav>
+
+        {/* Desktop Buttons */}
+        <div className="hidden md:flex items-center gap-3">
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-3">
+              {/* User profile info */}
+              <div 
+                onClick={() => navigate('/profile')}
+                className="hidden md:flex flex-col items-end text-right select-none cursor-pointer hover:opacity-80 transition"
               >
-                Panel Dashboard
+                <span className="text-[12px] font-bold tracking-tight text-zinc-100">
+                  {user.nama_panggilan || user.nama_lengkap}
+                </span>
+                <span className="text-[9px] uppercase font-mono text-zinc-500 font-semibold tracking-wider leading-none mt-0.5">
+                  [{user.role}]
+                </span>
+              </div>
+
+              {/* Profile Button */}
+              <button
+                onClick={() => navigate('/profile')}
+                className="h-8 px-3 text-[11px] font-bold rounded-lg tracking-wide border bg-zinc-800 hover:bg-zinc-750 text-zinc-200 border-zinc-700 transition-all duration-300 active:scale-[0.97] cursor-pointer"
+              >
+                Profil
               </button>
-            )}
-          </div>
-        )}
+              
+              {/* Logout Button */}
+              <button
+                onClick={() => {
+                  logout()
+                  toast({ title: 'Sesi Berakhir', description: 'Anda telah berhasil keluar dari sistem.', type: 'info' })
+                }}
+                className="h-8 px-3 text-[11px] font-bold rounded-lg tracking-wide border bg-zinc-900 hover:bg-zinc-850 text-zinc-200 border-zinc-800 transition-all duration-300 active:scale-[0.97] cursor-pointer"
+              >
+                Keluar
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => openModal('login')}
+                className="h-8 px-4 text-[12px] font-medium rounded-full border border-zinc-800/80 hover:border-zinc-700 bg-transparent text-zinc-300 hover:text-white transition-all duration-300 active:scale-[0.97] cursor-pointer"
+              >
+                Masuk
+              </button>
+            </div>
+          )}
+          
+          <button
+            onClick={() => navigate('/chat')}
+            className="h-8 px-4 text-[12px] font-medium rounded-md tracking-[-0.01em] transition-all duration-300 active:scale-[0.97] shadow-none cursor-pointer bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 hover:text-white"
+          >
+            Mulai Percakapan
+          </button>
+        </div>
+
+        {/* Mobile menu button */}
+        <div className="flex md:hidden items-center">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-zinc-200 hover:text-white transition-colors cursor-pointer"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </header>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed top-[60px] left-0 right-0 z-40 bg-zinc-950/95 backdrop-blur-lg border-b border-zinc-900 md:hidden overflow-hidden flex flex-col px-6 py-6 space-y-6"
+          >
+            {/* Links */}
+            <div className="flex flex-col space-y-4">
+              <button
+                className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  navigate('/')
+                  setTimeout(() => {
+                    document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
+                  }, 100)
+                }}
+              >
+                Layanan
+              </button>
+              <button
+                className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  navigate('/')
+                  setTimeout(() => {
+                    document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })
+                  }, 100)
+                }}
+              >
+                Verifikasi
+              </button>
+              <button
+                className="text-left text-[15px] font-semibold text-zinc-100 py-1 cursor-pointer"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  navigate('/all-reports')
+                }}
+              >
+                Semua Aduan
+              </button>
+              <button
+                className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  navigate('/about')
+                }}
+              >
+                Tentang
+              </button>
+            </div>
+
+            <div className="h-px bg-zinc-900 w-full" />
+
+            {/* Auth Actions */}
+            <div className="flex flex-col gap-3">
+              {isAuthenticated && user ? (
+                <>
+                  <div className="flex items-center gap-3 pb-2">
+                    <div className="h-9 w-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-zinc-200">
+                      {(user.nama_panggilan || user.nama_lengkap)[0]?.toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-bold text-zinc-200">{user.nama_lengkap}</div>
+                      <div className="text-[10px] font-mono text-zinc-500 uppercase">[{user.role}]</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      navigate('/profile')
+                    }}
+                    className="w-full h-10 border border-zinc-800 hover:bg-zinc-900 text-zinc-200 font-medium rounded-lg text-sm transition-colors cursor-pointer"
+                  >
+                    Profil Saya
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      logout()
+                      toast({ title: 'Sesi Berakhir', description: 'Anda telah berhasil keluar.', type: 'info' })
+                    }}
+                    className="w-full h-10 border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900 text-rose-400 hover:text-rose-350 font-medium rounded-lg text-sm transition-colors cursor-pointer"
+                  >
+                    Keluar
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      openModal('login')
+                    }}
+                    className="w-full h-10 border border-zinc-850 hover:bg-zinc-900 text-zinc-250 font-medium rounded-lg text-sm transition-colors cursor-pointer"
+                  >
+                    Masuk
+                  </button>
+                </div>
+              )}
+
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  navigate('/chat')
+                }}
+                className="w-full h-10 bg-white hover:bg-zinc-100 text-zinc-950 font-semibold rounded-lg text-sm transition-all active:scale-[0.98] mt-2 cursor-pointer shadow-lg"
+              >
+                Mulai Percakapan
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ─── CONTENT AREA ──────────────────────────────────────────────────── */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 space-y-8 relative z-10">
@@ -723,7 +924,7 @@ export function AllReports() {
           </div>
 
           {/* Right: Selected Report Details View Column */}
-          <div className="lg:col-span-5 sticky top-24">
+          <div className="hidden lg:block lg:col-span-5 sticky top-24">
             <AnimatePresence mode="wait">
               {selectedReport ? (
                 <motion.div
@@ -862,6 +1063,131 @@ export function AllReports() {
 
         </div>
       </main>
+
+      {/* Mobile Selected Report Details Overlay */}
+      <AnimatePresence>
+        {selectedReport && (
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="lg:hidden fixed inset-0 z-50 bg-zinc-950 flex flex-col"
+          >
+            {/* Header */}
+            <header className="flex h-14 items-center justify-between px-4 border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md shrink-0">
+              <div className="flex items-center gap-3">
+                <button
+                  className="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
+                  onClick={() => setSelectedReport(null)}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <h1 className="text-xs font-bold text-zinc-100 uppercase tracking-wider">
+                  Detail Pengaduan
+                </h1>
+              </div>
+              <span className={cn(
+                "px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full border font-mono",
+                (statusBadges[selectedReport.status] || {}).text,
+                (statusBadges[selectedReport.status] || {}).bg,
+                (statusBadges[selectedReport.status] || {}).border
+              )}>
+                {selectedReport.status}
+              </span>
+            </header>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+              {/* Header details */}
+              <div className="border-b border-zinc-900 pb-4">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400/90 font-mono">
+                  {selectedReport.category}
+                </span>
+                <h3 className="text-sm font-bold text-white tracking-tight mt-0.5">
+                  Aduan #{selectedReport.id.slice(0, 8)}
+                </h3>
+                <div className="flex items-center gap-1 text-[10px] text-zinc-500 font-mono mt-1">
+                  <Clock className="h-3 w-3" />
+                  <span>Dikirim {formatDate(selectedReport.created_at)}</span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <h4 className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Uraian Masalah</h4>
+                <p className="text-[12px] text-zinc-300 leading-relaxed font-sans bg-zinc-900/40 p-4 rounded-xl border border-zinc-900/65">
+                  {selectedReport.description}
+                </p>
+              </div>
+
+              {/* Regional info */}
+              <div className="grid grid-cols-2 gap-4 bg-zinc-900/20 p-4 rounded-xl border border-zinc-900/50">
+                <div className="space-y-1">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Wilayah Provinsi</span>
+                  <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.province || '-'}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Kota / Kabupaten</span>
+                  <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.city || '-'}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Kecamatan / Desa</span>
+                  <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.district || '-'}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Titik GPS</span>
+                  <span className="text-[10px] font-mono text-zinc-400 block truncate">
+                    {selectedReport.latitude?.toFixed(6)}, {selectedReport.longitude?.toFixed(6)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Photo attachment */}
+              {selectedReport.image_url && (
+                <div className="space-y-2">
+                  <h4 className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono flex items-center gap-1.5">
+                    <ImageIcon className="h-3 w-3 text-zinc-500" /> Lampiran Foto
+                  </h4>
+                  <div className="rounded-xl overflow-hidden border border-zinc-900 bg-zinc-900/40 p-2">
+                    <img 
+                      src={selectedReport.image_url} 
+                      alt="Lampiran aduan" 
+                      className="w-full h-auto max-h-[300px] object-contain rounded-lg"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Admin note */}
+              {selectedReport.admin_note && (
+                <div className="space-y-2 border-t border-zinc-900 pt-4">
+                  <h4 className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Tanggapan Petugas</h4>
+                  <p className="text-[12px] text-emerald-400 leading-relaxed font-sans bg-emerald-950/20 p-4 rounded-xl border border-emerald-900/20">
+                    {selectedReport.admin_note}
+                  </p>
+                </div>
+              )}
+
+              {/* Chat action if staff */}
+              {['admin', 'superadmin', 'petugas'].includes(user?.role || '') && (
+                <div className="border-t border-zinc-900 pt-4 flex gap-3">
+                  <button 
+                    onClick={() => {
+                      setSelectedReport(null)
+                      navigate('/admin')
+                    }}
+                    className="w-full h-10 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-350 hover:text-white border border-zinc-800 text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <MessageSquare className="h-3.5 w-3.5 text-zinc-400" />
+                    Buka Ruang Obrolan
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

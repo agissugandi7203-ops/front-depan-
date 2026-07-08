@@ -13,6 +13,7 @@ import {
 } from '@/types'
 
 import { API_BASE_URL } from '@/lib/apiConfig'
+import { useAuthStore } from '@/store/authStore'
 
 
 const api = axios.create({
@@ -39,6 +40,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiError>) => {
+    if (error.response?.status === 401) {
+      // Automatically log out user if token is invalid or expired
+      useAuthStore.getState().logout()
+    }
     const message = error.response?.data?.error || error.message || 'Terjadi kesalahan pada server'
     return Promise.reject(new Error(message))
   }

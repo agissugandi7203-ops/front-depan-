@@ -1,22 +1,30 @@
-import React, { useEffect, useRef } from 'react'
-import mermaid from 'mermaid'
+import React, { useEffect, useRef, memo } from 'react'
 
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'dark',
-  themeVariables: {
-    darkMode: true,
-    background: '#18181b',
-    primaryColor: '#6d28d9',
-    primaryTextColor: '#e4e4e7',
-    lineColor: '#52525b',
-    secondaryColor: '#1e1b4b',
-    tertiaryColor: '#27272a',
-    edgeLabelBackground: '#18181b',
-    nodeTextColor: '#e4e4e7',
-  },
-  flowchart: { curve: 'basis', htmlLabels: true },
-})
+// Lazy-import mermaid so it doesn't block initial bundle parse
+let mermaidInstance: any = null
+const getMermaid = async () => {
+  if (!mermaidInstance) {
+    const m = await import('mermaid')
+    mermaidInstance = m.default
+    mermaidInstance.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#18181b',
+        primaryColor: '#6d28d9',
+        primaryTextColor: '#e4e4e7',
+        lineColor: '#52525b',
+        secondaryColor: '#1e1b4b',
+        tertiaryColor: '#27272a',
+        edgeLabelBackground: '#18181b',
+        nodeTextColor: '#e4e4e7',
+      },
+      flowchart: { curve: 'basis', htmlLabels: true },
+    })
+  }
+  return mermaidInstance
+}
 
 let mermaidIdCounter = 0
 
@@ -24,7 +32,7 @@ interface Props {
   chart: string
 }
 
-export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
+export const MermaidDiagram: React.FC<Props> = memo(({ chart }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const id = useRef(`mermaid-${++mermaidIdCounter}`)
 
@@ -32,6 +40,7 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
     const render = async () => {
       if (!containerRef.current || !chart.trim()) return
       try {
+        const mermaid = await getMermaid()
         const { svg } = await mermaid.render(id.current, chart.trim())
         if (containerRef.current) {
           containerRef.current.innerHTML = svg
@@ -59,4 +68,7 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
       style={{ minHeight: 60 }}
     />
   )
-}
+})
+
+MermaidDiagram.displayName = 'MermaidDiagram'
+

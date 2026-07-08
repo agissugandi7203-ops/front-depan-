@@ -13,8 +13,8 @@ const ChatUser = React.lazy(() => import('@/pages/ChatUser').then(m => ({ defaul
 const AboutPage = React.lazy(() => import('@/pages/AboutPage').then(m => ({ default: m.AboutPage })));
 const AllReports = React.lazy(() => import('@/pages/AllReports').then(m => ({ default: m.AllReports })));
 const AdminDashboard = React.lazy(() => import('@/pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
-const Login = React.lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })));
-const Register = React.lazy(() => import('@/pages/Register').then(m => ({ default: m.Register })));
+// Auth modal — lazy loaded (only appears after user interaction, not needed at initial paint)
+const AuthModal = React.lazy(() => import('@/components/AuthModal').then(m => ({ default: m.AuthModal })));
 const VerifyEmail = React.lazy(() => import('@/pages/VerifyEmail').then(m => ({ default: m.VerifyEmail })));
 const AuthCallback = React.lazy(() => import('@/pages/AuthCallback').then(m => ({ default: m.AuthCallback })));
 const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
@@ -30,7 +30,10 @@ const PageLoader = () => (
   </div>
 );
 
+import { useSmoothScroll } from '@/hooks/useSmoothScroll';
+
 function App() {
+  useSmoothScroll();
   const { checkMe, isAuthenticated, user } = useAuthStore()
 
   useEffect(() => {
@@ -57,8 +60,8 @@ function App() {
                 <AllReports />
               </ProtectedRoute>
             } />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/register" element={<Navigate to="/" replace />} />
             <Route path="/profile" element={
               <ProtectedRoute>
                 <ProfilePage />
@@ -66,7 +69,7 @@ function App() {
             } />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/admin/login" element={<Navigate to="/login" replace />} />
+            <Route path="/admin/login" element={<Navigate to="/" replace />} />
             <Route path="/admin" element={
               <AdminGuard>
                 <AdminDashboard />
@@ -74,6 +77,10 @@ function App() {
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          {/* AuthModal: lazily rendered, own Suspense so it doesn't block page load */}
+          <Suspense fallback={null}>
+            <AuthModal />
+          </Suspense>
         </Suspense>
       </Router>
     </ToastProvider>

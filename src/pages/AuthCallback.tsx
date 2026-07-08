@@ -15,9 +15,16 @@ export function AuthCallback() {
     const handleCallback = async () => {
       try {
         // Supabase v2: token bisa ada di hash (#) atau query string (?)
-        const hash = window.location.hash.substring(1)
-        const query = window.location.search.substring(1)
-        const params = new URLSearchParams(hash || query)
+        // Combine both query and hash parameters to prevent missing parameters in redirect loops
+        const hashParams = new URLSearchParams(window.location.hash.substring(1))
+        const queryParams = new URLSearchParams(window.location.search)
+        const params = new URLSearchParams()
+        for (const [key, value] of hashParams.entries()) {
+          params.set(key, value)
+        }
+        for (const [key, value] of queryParams.entries()) {
+          params.set(key, value)
+        }
 
         const accessToken = params.get('access_token')
         const refreshToken = params.get('refresh_token')

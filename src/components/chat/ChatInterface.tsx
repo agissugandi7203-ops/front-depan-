@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useChat } from '@/hooks/useChat'
@@ -7,12 +7,16 @@ import { ChatMessage } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 import { ChatHeader } from './ChatHeader'
 import { ChatSidebar } from './ChatSidebar'
-import { CitizenReportModal } from './CitizenReportModal'
-import { SearchResultsSidebar } from './SearchResultsSidebar'
+
+// Lazy load large subcomponents to optimize initial page loading
+const CitizenReportModal = React.lazy(() => import('./CitizenReportModal').then(m => ({ default: m.CitizenReportModal })))
+const SearchResultsSidebar = React.lazy(() => import('./SearchResultsSidebar').then(m => ({ default: m.SearchResultsSidebar })))
+
 import { Button } from '@/components/ui/button'
 import { Home, Menu, X, FileText, Activity, Users, Wifi, WifiOff, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
+import { useAuthModalStore } from '@/store/authModalStore'
 import { citizenService, CitizenReport } from '@/services/api'
 
 // Suggested prompts for empty state
@@ -39,6 +43,7 @@ export function ChatInterface() {
 
   const { isSidebarOpen, toggleSidebar, sessions, currentSessionId, createSession, setCurrentSession } = useChatStore()
   const { user, token } = useAuthStore()
+  const { openModal } = useAuthModalStore()
   
   const [activeReportId, setActiveReportId] = useState<string | null>(null)
   const [activeReport, setActiveReport] = useState<CitizenReport | null>(null)
@@ -315,18 +320,24 @@ export function ChatInterface() {
     <div className="flex h-screen bg-zinc-950 text-zinc-100 overflow-hidden relative">
 
       {/* ── Desktop Sidebar ────────────────────────────────────────────────── */}
-      <div 
-        style={{ width: isSidebarOpen ? `${sidebarWidth}px` : '0px' }}
+      <motion.div
+        animate={{ width: isSidebarOpen ? sidebarWidth : 0 }}
+        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        style={{ borderRadius: 0 }}
         className={cn(
-          'hidden lg:block shrink-0 overflow-hidden'
+          'hidden lg:block shrink-0 overflow-hidden bg-transparent'
         )}
       >
-        <ChatSidebar 
-          onOpenReportModal={() => setIsReportModalOpen(true)} 
-          activeReportId={activeReportId}
-          onSelectReport={setActiveReportId}
-        />
-      </div>
+        <div className="h-full py-2 pl-2">
+          <div className="h-full rounded-2xl overflow-hidden" style={{ width: sidebarWidth - 8 }}>
+            <ChatSidebar 
+              onOpenReportModal={() => setIsReportModalOpen(true)} 
+              activeReportId={activeReportId}
+              onSelectReport={setActiveReportId}
+            />
+          </div>
+        </div>
+      </motion.div>
 
       {/* Drag Handle Divider */}
       {isSidebarOpen && (
@@ -387,6 +398,28 @@ export function ChatInterface() {
               ? wsConnected ? 'Terhubung dengan Petugas' : 'Menghubungkan kembali...'
               : "Terverifikasi"
           }
+          leftActions={
+            <>
+              {/* Desktop sidebar toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hidden lg:flex h-8 w-8 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-md"
+                onClick={toggleSidebar}
+              >
+                <Menu className="w-4 h-4" />
+              </Button>
+              {/* Mobile sidebar toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden h-8 w-8 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-md"
+                onClick={() => setIsMobileSidebarOpen(true)}
+              >
+                <Menu className="w-4 h-4" />
+              </Button>
+            </>
+          }
         >
           {/* WS Connection Indicator (only when in report chat mode) */}
           {activeReportId && (
@@ -406,22 +439,6 @@ export function ChatInterface() {
               {wsConnected ? 'Online' : 'Offline'}
             </div>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden h-8 w-8 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-md"
-            onClick={() => setIsMobileSidebarOpen(true)}
-          >
-            <Menu className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hidden lg:flex h-8 w-8 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-md"
-            onClick={toggleSidebar}
-          >
-            <Menu className="w-4 h-4" />
-          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -446,8 +463,13 @@ export function ChatInterface() {
           )}
         </AnimatePresence>
 
-        {/* Messages */}
-        <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
+        {/* Messages — overflow-anchor:none prevents layout jumps during streaming */}
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto"
+          style={{ overflowAnchor: 'none' }}
+        >
           {displayedMessages.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -456,7 +478,7 @@ export function ChatInterface() {
               className="h-full flex flex-col items-center justify-center px-4 text-center select-none"
             >
               {/* Icon */}
-              <img src="/assets/logo/komunitas.png" alt="KOMUNITAS Logo" className="w-10 h-10 object-contain rounded-md mb-5" />
+              <img src="/assets/logo/komunitas.png" alt="KOMUNITAS Logo" className="w-10 h-10 object-contain rounded-md mb-5" loading="lazy" />
 
               {/* Copy */}
               <h3 className="text-[17px] font-semibold text-zinc-100 tracking-[-0.03em] mb-2">
@@ -549,7 +571,7 @@ export function ChatInterface() {
                 </p>
               </div>
               <Button 
-                onClick={() => navigate('/login')}
+                onClick={() => openModal('login')}
                 className="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold tracking-wide uppercase px-5 py-2 rounded-xl border border-indigo-700/50 hover:border-indigo-600 shadow-md active:scale-95 transition-all"
               >
                 Masuk ke Akun
@@ -568,23 +590,27 @@ export function ChatInterface() {
       {/* Search Results Sidebar */}
       <AnimatePresence>
         {isSearchSidebarOpen && (
-          <SearchResultsSidebar 
-            isOpen={isSearchSidebarOpen} 
-            onClose={() => setIsSearchSidebarOpen(false)} 
-            results={activeSearchResults}
-          />
+          <Suspense fallback={null}>
+            <SearchResultsSidebar 
+              isOpen={isSearchSidebarOpen} 
+              onClose={() => setIsSearchSidebarOpen(false)} 
+              results={activeSearchResults}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
       {/* Report Modal */}
-      <CitizenReportModal 
-        isOpen={isReportModalOpen} 
-        onClose={() => setIsReportModalOpen(false)} 
-        onSuccess={(reportId) => {
-          setActiveReportId(reportId)
-          setIsReportModalOpen(false)
-        }}
-      />
+      <Suspense fallback={null}>
+        <CitizenReportModal 
+          isOpen={isReportModalOpen} 
+          onClose={() => setIsReportModalOpen(false)} 
+          onSuccess={(reportId) => {
+            setActiveReportId(reportId)
+            setIsReportModalOpen(false)
+          }}
+        />
+      </Suspense>
     </div>
   )
 }

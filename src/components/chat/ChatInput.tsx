@@ -1,4 +1,4 @@
-import { useState, useRef, KeyboardEvent, useEffect } from 'react'
+import { useState, useRef, KeyboardEvent, useEffect, memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Send, Loader2, Mic, MicOff, Camera, X, Image, Video, Paperclip, FileText, FileSpreadsheet } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -47,7 +47,7 @@ const getFileIcon = (file: File): AttachedFile['icon'] => {
   return 'text'
 }
 
-export function ChatInput({ onSend, isLoading, disabled }: ChatInputProps) {
+function ChatInputComponent({ onSend, isLoading, disabled }: ChatInputProps) {
   const [input, setInput] = useState('')
   const [selectedImage, setSelectedImage] = useState<{ base64: string; mimeType: string; name: string } | null>(null)
   const [attachedDoc, setAttachedDoc] = useState<AttachedFile | null>(null)
@@ -651,3 +651,6 @@ export function ChatInput({ onSend, isLoading, disabled }: ChatInputProps) {
     </div>
   )
 }
+
+export const ChatInput = memo(ChatInputComponent)
+ChatInput.displayName = 'ChatInput'

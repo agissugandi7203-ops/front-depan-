@@ -1144,7 +1144,7 @@ function AddServiceModal({ onClose, onAdd }: { onClose: () => void; onAdd: (payl
               value={formData.address}
               onChange={e => setFormData(v => ({ ...v, address: e.target.value }))}
               placeholder="Contoh: Jl. Merdeka No. 12, Kelurahan C"
-              className="w-full h-9 rounded border border-zinc-800 bg-zinc-955 bg-zinc-950 px-3 text-zinc-200 outline-none focus:border-zinc-700"
+              className="w-full h-9 rounded border border-zinc-800 bg-zinc-950 bg-zinc-950 px-3 text-zinc-200 outline-none focus:border-zinc-700"
             />
           </div>
 
@@ -1332,7 +1332,7 @@ function AddRAGDocumentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (
         </div>
 
         {error && (
-          <div className="mb-4 rounded border border-red-900/50 bg-red-955/50 p-3 text-red-400 font-semibold">
+          <div className="mb-4 rounded border border-red-900/50 bg-red-950/50 p-3 text-red-400 font-semibold">
             {error}
           </div>
         )}
@@ -1695,12 +1695,14 @@ function ChatTranscriptModal({ session, onClose }: { session: ChatHistorySession
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export function AdminDashboard() {
   const navigate = useNavigate()
+  const { user, logout } = useAuthStore()
   
   // ─── Active Tab ───────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<'overview' | 'reports' | 'services' | 'claims' | 'summaries' | 'histories' | 'percakapan' | 'staff' | 'hoaks'>('overview')
 
   // ─── Mobile Sidebar State ─────────────────────────────────────────────────
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   // ─── Overview States ──────────────────────────────────────────────────────
   const [stats, setStats] = useState<DashboardStats | null>(null)
@@ -2475,23 +2477,35 @@ export function AdminDashboard() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 border-r border-zinc-800 bg-zinc-900 flex flex-col transition-transform duration-200 md:translate-x-0",
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 left-0 z-40 border-r border-zinc-800 bg-zinc-900 flex flex-col transition-all duration-300 md:translate-x-0",
+          isSidebarCollapsed ? "w-20" : "w-64",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:transform-none"
         )}
       >
+        {/* Sidebar Collapse Toggle Button */}
+        <button
+          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          className="hidden md:flex absolute -right-3 top-4 z-50 h-6 w-6 items-center justify-center rounded-full border border-zinc-850 bg-zinc-950 text-zinc-400 hover:text-zinc-150 transition shadow-md active:scale-90 cursor-pointer"
+          title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        >
+          {isSidebarCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
+        </button>
+
         {/* Brand Header */}
-        <div className="flex h-14 items-center gap-3 px-5 border-b border-zinc-800 bg-zinc-950/20">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-955 bg-zinc-905 bg-zinc-950 shadow-sm">
+        <div className={cn("flex h-14 items-center border-b border-zinc-800 bg-zinc-950/20 px-5", isSidebarCollapsed ? "justify-center px-0" : "gap-3")}>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 shadow-sm">
             <Shield className="h-4.5 w-4.5 text-zinc-300" />
           </div>
-          <div>
-            <div className="text-xs font-bold text-zinc-100 uppercase tracking-wider">KOMUNITAS</div>
-            <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider leading-none mt-0.5">Admin Portal</div>
-          </div>
+          {!isSidebarCollapsed && (
+            <div>
+              <div className="text-xs font-bold text-zinc-100 uppercase tracking-wider">KOMUNITAS</div>
+              <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider leading-none mt-0.5">Admin Portal</div>
+            </div>
+          )}
         </div>
 
         {/* Navigation links */}
-        <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto scrollbar-none">
+        <nav className="flex-1 space-y-1.5 px-3 py-4 overflow-y-auto scrollbar-none">
           {navItems.map(item => {
             const Icon = item.icon
             const isActive = activeTab === item.id
@@ -2504,46 +2518,60 @@ export function AdminDashboard() {
                   setIsSidebarOpen(false)
                 }}
                 className={cn(
-                  "w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-left transition active:scale-[0.98]",
+                  "w-full flex items-center rounded-xl transition active:scale-[0.98] cursor-pointer",
+                  isSidebarCollapsed ? "justify-center p-2.5" : "gap-3 px-3.5 py-2.5 text-left",
                   isActive
-                    ? "bg-zinc-950 text-zinc-100 border border-zinc-800 shadow-md font-semibold"
+                    ? "bg-zinc-950 text-zinc-100 border border-zinc-800 shadow-md font-semibold shadow-indigo-950/30"
                     : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-transparent"
                 )}
+                title={isSidebarCollapsed ? item.label : undefined}
               >
-                <Icon className={cn("h-4 w-4 flex-shrink-0", isActive ? "text-zinc-100" : "text-zinc-500")} />
-                <div className="flex flex-col">
-                  <span className="text-xs leading-tight">{item.label}</span>
-                  <span className="text-[9px] text-zinc-500 font-normal leading-normal mt-0.5">{item.desc}</span>
-                </div>
+                <Icon className={cn("h-4.5 w-4.5 flex-shrink-0", isActive ? "text-indigo-400" : "text-zinc-500")} />
+                {!isSidebarCollapsed && (
+                  <div className="flex flex-col">
+                    <span className="text-xs leading-tight">{item.label}</span>
+                    <span className="text-[9px] text-zinc-500 font-normal leading-normal mt-0.5">{item.desc}</span>
+                  </div>
+                )}
               </button>
             )
           })}
         </nav>
 
         {/* Workspace Session info */}
-        <div className="border-t border-zinc-800 p-4 bg-zinc-950/30">
-          <div className="flex flex-col gap-2 min-w-0 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <div className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Active Session</div>
-              <div className="text-xs font-bold text-zinc-300 truncate">Administrator</div>
-            </div>
+        <div className="border-t border-zinc-800 p-3 bg-zinc-950/30">
+          <div className={cn("flex items-center justify-between gap-2 min-w-0", isSidebarCollapsed ? "flex-col" : "flex-row")}>
+            {!isSidebarCollapsed && (
+              <div className="min-w-0">
+                <div className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Active Session</div>
+                <div className="text-xs font-bold text-zinc-300 truncate" title={user?.nama_lengkap || 'Administrator'}>
+                  {user?.nama_panggilan || user?.nama_lengkap || 'Admin'}
+                </div>
+              </div>
+            )}
             <button
               onClick={async () => {
-                await authService.logout()
-                navigate('/admin/login', { replace: true })
+                await logout()
+                navigate('/login', { replace: true })
               }}
-              className="flex h-8 w-full sm:w-8 items-center justify-center gap-1.5 sm:gap-0 rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-rose-400 hover:border-rose-900 transition active:scale-95 px-3 sm:px-0"
+              className={cn(
+                "flex h-8 items-center justify-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-rose-400 hover:border-rose-900 transition active:scale-95 cursor-pointer",
+                isSidebarCollapsed ? "w-8 p-0" : "px-3"
+              )}
               title="Logout"
             >
               <LogOut className="h-3.5 w-3.5" />
-              <span className="text-xs font-semibold sm:hidden">Logout</span>
+              {!isSidebarCollapsed && <span className="text-xs font-semibold">Keluar</span>}
             </button>
           </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 md:pl-64 flex flex-col min-h-screen min-w-0 w-full overflow-x-hidden">
+      <div className={cn(
+        "flex-1 flex flex-col min-h-screen min-w-0 w-full overflow-x-hidden transition-all duration-300",
+        isSidebarCollapsed ? "md:pl-20" : "md:pl-64"
+      )}>
         {/* Topbar */}
         <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md">
           <div className="flex h-14 items-center justify-between px-6">
@@ -3090,8 +3118,8 @@ export function AdminDashboard() {
                               className={cn(
                                 'flex h-7 w-7 items-center justify-center rounded-lg text-xs font-semibold border transition',
                                 page === p
-                                  ? 'bg-zinc-100 text-zinc-955 border-zinc-100 shadow'
-                                  : 'border-zinc-800 bg-zinc-955 text-zinc-400 hover:bg-zinc-900'
+                                  ? 'bg-zinc-100 text-zinc-950 border-zinc-100 shadow'
+                                  : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:bg-zinc-900'
                               )}
                             >
                               {p}
@@ -3132,7 +3160,7 @@ export function AdminDashboard() {
                               value={serviceSearch}
                               onChange={e => setServiceSearch(e.target.value)}
                               placeholder="Cari layanan/lembaga..."
-                              className="h-8 w-full rounded border border-zinc-800 bg-zinc-955 pl-8 pr-3 text-xs text-zinc-200 outline-none focus:border-zinc-700 sm:w-48 placeholder-zinc-500"
+                              className="h-8 w-full rounded border border-zinc-800 bg-zinc-950 pl-8 pr-3 text-xs text-zinc-200 outline-none focus:border-zinc-700 sm:w-48 placeholder-zinc-500"
                             />
                           </div>
                           <div className="flex items-center gap-1.5 text-xs text-zinc-400">
@@ -3140,7 +3168,7 @@ export function AdminDashboard() {
                             <select
                               value={serviceFilterCategory}
                               onChange={e => setServiceFilterCategory(e.target.value)}
-                              className="h-8 rounded border border-zinc-800 bg-zinc-955 px-2 text-zinc-300 outline-none focus:border-zinc-700"
+                              className="h-8 rounded border border-zinc-800 bg-zinc-950 px-2 text-zinc-300 outline-none focus:border-zinc-700"
                             >
                               <option value="all" className="bg-zinc-900 text-zinc-300">Semua Kategori</option>
                               {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
@@ -3162,7 +3190,7 @@ export function AdminDashboard() {
                           <div className="overflow-x-auto">
                             <table className="w-full text-left text-xs border-collapse">
                               <thead>
-                                <tr className="border-b border-zinc-800 bg-zinc-955/50">
+                                <tr className="border-b border-zinc-800 bg-zinc-950/50">
                                   {[
                                     { key: 'id', width: 'w-[100px] min-w-[100px]', className: 'hidden xl:table-cell' },
                                     { key: 'name', width: 'w-[200px] min-w-[200px]', className: '' },
@@ -3223,7 +3251,7 @@ export function AdminDashboard() {
                                       <div className="flex items-center gap-1.5">
                                         <button
                                           onClick={() => setSelectedService(s)}
-                                          className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-955 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition shadow-sm active:scale-95"
+                                          className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition shadow-sm active:scale-95"
                                         >
                                           <Eye className="h-3.5 w-3.5" />
                                         </button>
@@ -3260,7 +3288,7 @@ export function AdminDashboard() {
                             value={ragDocSearch}
                             onChange={e => setRagDocSearch(e.target.value)}
                             placeholder="Cari nama berkas..."
-                            className="h-8 w-full rounded border border-zinc-800 bg-zinc-955 pl-8 pr-3 text-xs text-zinc-200 outline-none focus:border-zinc-700 sm:w-48 placeholder-zinc-500"
+                            className="h-8 w-full rounded border border-zinc-800 bg-zinc-950 pl-8 pr-3 text-xs text-zinc-200 outline-none focus:border-zinc-700 sm:w-48 placeholder-zinc-500"
                           />
                         </div>
                       </div>
@@ -3281,7 +3309,7 @@ export function AdminDashboard() {
                           <div className="overflow-x-auto">
                             <table className="w-full text-left text-xs border-collapse">
                               <thead>
-                                <tr className="border-b border-zinc-800 bg-zinc-955/50">
+                                <tr className="border-b border-zinc-800 bg-zinc-950/50">
                                   <th className="px-4 py-3 font-semibold text-zinc-400 uppercase tracking-wider text-[10px] whitespace-nowrap">ID Dokumen</th>
                                   <th className="px-4 py-3 font-semibold text-zinc-400 uppercase tracking-wider text-[10px] whitespace-nowrap">Nama Berkas</th>
                                   <th className="px-4 py-3 font-semibold text-zinc-400 uppercase tracking-wider text-[10px] whitespace-nowrap">Ukuran</th>
@@ -3370,7 +3398,7 @@ export function AdminDashboard() {
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
-                            <tr className="border-b border-zinc-800 bg-zinc-955/50">
+                            <tr className="border-b border-zinc-800 bg-zinc-950/50">
                               {[
                                 { key: 'id', width: 'w-[100px] min-w-[100px]', className: 'hidden xl:table-cell' },
                                 { key: 'claim_text', width: 'w-[220px] min-w-[220px]', className: '' },
@@ -3591,7 +3619,7 @@ export function AdminDashboard() {
                           <button
                             onClick={() => setSummariesPage(p => Math.max(1, p - 1))}
                             disabled={summariesPage === 1}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-905 bg-zinc-950 transition hover:bg-zinc-900 disabled:opacity-30"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 bg-zinc-950 transition hover:bg-zinc-900 disabled:opacity-30"
                           >
                             <ChevronLeft className="h-3.5 w-3.5 text-zinc-400" />
                           </button>
@@ -3631,7 +3659,7 @@ export function AdminDashboard() {
                     <div className="flex items-center gap-2">
                       <MessageSquare className="h-4 w-4 text-zinc-400" />
                       <h2 className="text-xs font-bold text-zinc-100 uppercase tracking-wider">Tabel: chat_history</h2>
-                      <span className="rounded-full bg-zinc-955 border border-zinc-800 bg-zinc-900 px-2.5 py-0.5 text-[10px] text-zinc-400 font-semibold">
+                      <span className="rounded-full bg-zinc-950 border border-zinc-800 bg-zinc-900 px-2.5 py-0.5 text-[10px] text-zinc-400 font-semibold">
                         {historiesTotal} Baris
                       </span>
                     </div>
@@ -3641,7 +3669,7 @@ export function AdminDashboard() {
                         value={historiesSearch}
                         onChange={e => setHistoriesSearch(e.target.value)}
                         placeholder="Cari Sesi ID..."
-                        className="h-8 w-full rounded border border-zinc-800 bg-zinc-905 bg-zinc-950 pl-8 pr-3 text-xs text-zinc-200 outline-none focus:border-zinc-700 sm:w-48 placeholder-zinc-500"
+                        className="h-8 w-full rounded border border-zinc-800 bg-zinc-900 bg-zinc-950 pl-8 pr-3 text-xs text-zinc-200 outline-none focus:border-zinc-700 sm:w-48 placeholder-zinc-500"
                       />
                     </div>
                   </div>
@@ -3680,7 +3708,7 @@ export function AdminDashboard() {
                                   </div>
                                 </td>
                                 <td className="px-4 py-3.5 text-zinc-300 font-semibold text-[11px] min-w-[200px] whitespace-nowrap">
-                                  <span className="px-2.5 py-0.5 bg-zinc-955 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-300 whitespace-nowrap">
+                                  <span className="px-2.5 py-0.5 bg-zinc-950 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-300 whitespace-nowrap">
                                     {h.messages ? `${h.messages.length} Pesan` : '0 Pesan'}
                                   </span>
                                 </td>
@@ -3915,17 +3943,17 @@ export function AdminDashboard() {
                               <span className="text-[10px] text-zinc-500 font-medium">Halaman {chatPage} dari {totalChatPages} (12 per halaman)</span>
                               <div className="flex items-center gap-1">
                                 <button onClick={() => setChatPage(p => Math.max(1, p - 1))} disabled={chatPage === 1}
-                                  className="flex h-6.5 w-6.5 items-center justify-center rounded border border-zinc-800 bg-zinc-955 hover:bg-zinc-900 disabled:opacity-30 transition">
+                                  className="flex h-6.5 w-6.5 items-center justify-center rounded border border-zinc-800 bg-zinc-950 hover:bg-zinc-900 disabled:opacity-30 transition">
                                   <ChevronLeft className="h-3.5 w-3.5 text-zinc-400" />
                                 </button>
                                 {Array.from({ length: Math.min(totalChatPages, 5) }, (_, i) => i + 1).map(p => (
                                   <button key={p} onClick={() => setChatPage(p)}
                                     className={cn('flex h-6.5 w-6.5 items-center justify-center rounded text-xs font-semibold border transition',
-                                      chatPage === p ? 'bg-zinc-100 text-zinc-955 border-zinc-100' : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:bg-zinc-955'
+                                      chatPage === p ? 'bg-zinc-100 text-zinc-950 border-zinc-100' : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:bg-zinc-950'
                                     )}>{p}</button>
                                 ))}
                                 <button onClick={() => setChatPage(p => Math.min(totalChatPages, p + 1))} disabled={chatPage === totalChatPages}
-                                  className="flex h-6.5 w-6.5 items-center justify-center rounded border border-zinc-800 bg-zinc-955 hover:bg-zinc-900 disabled:opacity-30 transition">
+                                  className="flex h-6.5 w-6.5 items-center justify-center rounded border border-zinc-800 bg-zinc-950 hover:bg-zinc-900 disabled:opacity-30 transition">
                                   <ChevronRight className="h-3.5 w-3.5 text-zinc-400" />
                                 </button>
                               </div>

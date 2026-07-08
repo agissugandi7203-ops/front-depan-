@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Message, SearchResultItem, SearchProgress } from '@/types'
 import { cn, formatTime } from '@/lib/utils'
@@ -203,7 +203,7 @@ const parseSteps = (text: string): string[] => {
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export function ChatMessage({ message, isStreaming, searchPhase, onOpenSearchResults }: ChatMessageProps) {
+export const ChatMessage = memo(function ChatMessage({ message, isStreaming, searchPhase, onOpenSearchResults }: ChatMessageProps) {
   const isUser  = message.role === 'user'
   const isError = message.isError
 
@@ -424,4 +424,4 @@ export function ChatMessage({ message, isStreaming, searchPhase, onOpenSearchRes
       </div>
     </motion.div>
   )
-}
+})
