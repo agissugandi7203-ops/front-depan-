@@ -5,8 +5,9 @@ import { createClient } from '@supabase/supabase-js'
 
 // Ambil env variables Supabase (sama dengan yang dipakai backend)
 // Untuk frontend, kita pakai VITE_ prefix
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://qaenpoqkwixilczeqwyv.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhZW5wb3Frd2l4aWxjemVxd3l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMTc3NzksImV4cCI6MjA5ODg5Mzc3OX0.o4ZfQSsA_6vpTbEvTh9mBgVXix2jbeaL6T5GCNeNnp4'
+
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
