@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { useAuthModalStore } from '@/store/authModalStore'
 
 interface AdminGuardProps {
   children: React.ReactNode
@@ -43,9 +44,10 @@ export function AdminGuard({ children }: AdminGuardProps) {
     )
   }
 
-  // Jika belum login, alihkan ke halaman login terpadu
+  // Jika belum login: buka AuthModal dan redirect ke /
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    useAuthModalStore.getState().openModal('login')
+    return <Navigate to="/" state={{ from: location }} replace />
   }
 
   // Jika login tetapi perannya adalah user (warga biasa), tidak diizinkan masuk ke panel admin

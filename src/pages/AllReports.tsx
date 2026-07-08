@@ -3,14 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowLeft, Search, Filter, MapPin, Calendar, User, Phone, 
-  Loader2, FileText, Clock, AlertTriangle, Image as ImageIcon, MessageSquare, Menu, X
+  Loader2, FileText, Clock, AlertTriangle, Image as ImageIcon, MessageSquare,
+  CheckCircle2
 } from 'lucide-react'
 import { adminService } from '@/services/api'
 import { useAuthStore } from '@/store/authStore'
-import { useAuthModalStore } from '@/store/authModalStore'
 import { useToast } from '@/components/ui/toast'
 import { getWsUrl } from '@/lib/apiConfig'
 import { cn } from '@/lib/utils'
+import { Navbar } from '@/components/Navbar'
+import { HLSPlayer } from '@/components/HLSPlayer'
 
 
 interface Report {
@@ -73,9 +75,7 @@ export function AllReports() {
   const [provinceCityMap, setProvinceCityMap] = useState<Record<string, string[]>>({})
   const [cityDistrictMap, setCityDistrictMap] = useState<Record<string, string[]>>({})
 
-  const { user, logout, isAuthenticated } = useAuthStore()
-  const { openModal } = useAuthModalStore()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { user } = useAuthStore()
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -323,293 +323,49 @@ export function AllReports() {
       <div className="pointer-events-none absolute -left-40 -top-40 h-[600px] w-[600px] rounded-full bg-zinc-900/10 blur-[150px]" />
       <div className="pointer-events-none absolute -right-40 -bottom-40 h-[600px] w-[600px] rounded-full bg-zinc-900/10 blur-[150px]" />
 
-      {/* ─── HEADER ────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 h-[60px] border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md px-6 md:px-10 flex items-center justify-between">
-        {/* Brand/Logo */}
-        <div 
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2.5 group select-none cursor-pointer"
-        >
-          <img src="/assets/logo/komunitas.png" alt="KOMUNITAS Logo" className="h-7 w-7 object-contain rounded-md transition-opacity group-hover:opacity-85" />
-          <span className="font-semibold text-[15px] tracking-[-0.02em] text-zinc-100">KOMUNITAS</span>
+      <Navbar activeItem="Semua Aduan" />
+
+      {/* Hero Section */}
+      <div className="relative w-full h-[45vh] md:h-[50vh] overflow-hidden bg-zinc-950 flex flex-col justify-end pb-10 px-6 md:px-10 border-b border-zinc-900">
+        {/* HLS Video Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
+          <HLSPlayer src="https://stream.mux.com/QgTir2Bu4u6d01CqyKEBCks68PIm2nCM7vhwXgenS00tw.m3u8" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+          <div className="absolute inset-0 bg-zinc-950/40" />
         </div>
-
-        {/* Navigation links */}
-        <nav className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-7">
-          <button
-            className="text-[13px] text-zinc-400 hover:text-zinc-100 transition-colors tracking-[-0.01em] cursor-pointer"
-            onClick={() => {
-              navigate('/')
-              setTimeout(() => {
-                document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
-              }, 100)
-            }}
-          >
-            Layanan
-          </button>
-          <button
-            className="text-[13px] text-zinc-400 hover:text-zinc-100 transition-colors tracking-[-0.01em] cursor-pointer"
-            onClick={() => {
-              navigate('/')
-              setTimeout(() => {
-                document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })
-              }, 100)
-            }}
-          >
-            Verifikasi
-          </button>
-          <button
-            className="text-[13px] text-zinc-100 font-semibold transition-colors tracking-[-0.01em] cursor-pointer"
-            onClick={() => navigate('/all-reports')}
-          >
-            Semua Aduan
-          </button>
-          <button
-            className="text-[13px] text-zinc-400 hover:text-zinc-100 transition-colors tracking-[-0.01em] cursor-pointer"
-            onClick={() => navigate('/about')}
-          >
-            Tentang
-          </button>
-        </nav>
-
-        {/* Desktop Buttons */}
-        <div className="hidden md:flex items-center gap-3">
-          {isAuthenticated && user ? (
-            <div className="flex items-center gap-3">
-              {/* User profile info */}
-              <div 
-                onClick={() => navigate('/profile')}
-                className="hidden md:flex flex-col items-end text-right select-none cursor-pointer hover:opacity-80 transition"
-              >
-                <span className="text-[12px] font-bold tracking-tight text-zinc-100">
-                  {user.nama_panggilan || user.nama_lengkap}
-                </span>
-                <span className="text-[9px] uppercase font-mono text-zinc-500 font-semibold tracking-wider leading-none mt-0.5">
-                  [{user.role}]
-                </span>
-              </div>
-
-              {/* Profile Button */}
-              <button
-                onClick={() => navigate('/profile')}
-                className="h-8 px-3 text-[11px] font-bold rounded-lg tracking-wide border bg-zinc-800 hover:bg-zinc-750 text-zinc-200 border-zinc-700 transition-all duration-300 active:scale-[0.97] cursor-pointer"
-              >
-                Profil
-              </button>
-              
-              {/* Logout Button */}
-              <button
-                onClick={() => {
-                  logout()
-                  toast({ title: 'Sesi Berakhir', description: 'Anda telah berhasil keluar dari sistem.', type: 'info' })
-                }}
-                className="h-8 px-3 text-[11px] font-bold rounded-lg tracking-wide border bg-zinc-900 hover:bg-zinc-850 text-zinc-200 border-zinc-800 transition-all duration-300 active:scale-[0.97] cursor-pointer"
-              >
-                Keluar
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => openModal('login')}
-                className="h-8 px-4 text-[12px] font-medium rounded-full border border-zinc-800/80 hover:border-zinc-700 bg-transparent text-zinc-300 hover:text-white transition-all duration-300 active:scale-[0.97] cursor-pointer"
-              >
-                Masuk
-              </button>
-            </div>
-          )}
-          
-          <button
-            onClick={() => navigate('/chat')}
-            className="h-8 px-4 text-[12px] font-medium rounded-md tracking-[-0.01em] transition-all duration-300 active:scale-[0.97] shadow-none cursor-pointer bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 hover:text-white"
-          >
-            Mulai Percakapan
-          </button>
-        </div>
-
-        {/* Mobile menu button */}
-        <div className="flex md:hidden items-center">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-zinc-200 hover:text-white transition-colors cursor-pointer"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed top-[60px] left-0 right-0 z-40 bg-zinc-950/95 backdrop-blur-lg border-b border-zinc-900 md:hidden overflow-hidden flex flex-col px-6 py-6 space-y-6"
-          >
-            {/* Links */}
-            <div className="flex flex-col space-y-4">
-              <button
-                className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  navigate('/')
-                  setTimeout(() => {
-                    document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
-                  }, 100)
-                }}
-              >
-                Layanan
-              </button>
-              <button
-                className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  navigate('/')
-                  setTimeout(() => {
-                    document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })
-                  }, 100)
-                }}
-              >
-                Verifikasi
-              </button>
-              <button
-                className="text-left text-[15px] font-semibold text-zinc-100 py-1 cursor-pointer"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  navigate('/all-reports')
-                }}
-              >
-                Semua Aduan
-              </button>
-              <button
-                className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  navigate('/about')
-                }}
-              >
-                Tentang
-              </button>
-            </div>
-
-            <div className="h-px bg-zinc-900 w-full" />
-
-            {/* Auth Actions */}
-            <div className="flex flex-col gap-3">
-              {isAuthenticated && user ? (
-                <>
-                  <div className="flex items-center gap-3 pb-2">
-                    <div className="h-9 w-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-zinc-200">
-                      {(user.nama_panggilan || user.nama_lengkap)[0]?.toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-bold text-zinc-200">{user.nama_lengkap}</div>
-                      <div className="text-[10px] font-mono text-zinc-500 uppercase">[{user.role}]</div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      navigate('/profile')
-                    }}
-                    className="w-full h-10 border border-zinc-800 hover:bg-zinc-900 text-zinc-200 font-medium rounded-lg text-sm transition-colors cursor-pointer"
-                  >
-                    Profil Saya
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      logout()
-                      toast({ title: 'Sesi Berakhir', description: 'Anda telah berhasil keluar.', type: 'info' })
-                    }}
-                    className="w-full h-10 border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900 text-rose-400 hover:text-rose-350 font-medium rounded-lg text-sm transition-colors cursor-pointer"
-                  >
-                    Keluar
-                  </button>
-                </>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      openModal('login')
-                    }}
-                    className="w-full h-10 border border-zinc-850 hover:bg-zinc-900 text-zinc-250 font-medium rounded-lg text-sm transition-colors cursor-pointer"
-                  >
-                    Masuk
-                  </button>
-                </div>
-              )}
-
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  navigate('/chat')
-                }}
-                className="w-full h-10 bg-white hover:bg-zinc-100 text-zinc-950 font-semibold rounded-lg text-sm transition-all active:scale-[0.98] mt-2 cursor-pointer shadow-lg"
-              >
-                Mulai Percakapan
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ─── CONTENT AREA ──────────────────────────────────────────────────── */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 space-y-8 relative z-10">
         
-        {/* Page Title & Quick Stats Card */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-1">
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">Monitoring Pengaduan Nasional</h2>
-            <p className="text-xs text-zinc-400 max-w-xl leading-relaxed">
-              Melihat seluruh aduan darurat, fasilitas umum, dan laporan bencana sosial secara transparan dan terkini dari seluruh penjuru Indonesia.
-            </p>
-          </div>
-
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-4 gap-2.5 sm:gap-4 max-w-md w-full shrink-0 select-none">
-            <div className="border border-zinc-900 bg-zinc-900/20 backdrop-blur-sm rounded-xl p-3 text-center">
-              <span className="block text-lg font-bold tracking-tight text-zinc-100">{stats.total}</span>
-              <span className="text-[9px] text-zinc-500 font-semibold uppercase tracking-wider mt-0.5 block">Total</span>
-            </div>
-            <div className="border border-zinc-900 bg-amber-500/5 rounded-xl p-3 text-center">
-              <span className="block text-lg font-bold tracking-tight text-amber-400">{stats.pending}</span>
-              <span className="text-[9px] text-zinc-500 font-semibold uppercase tracking-wider mt-0.5 block">Antre</span>
-            </div>
-            <div className="border border-zinc-900 bg-sky-500/5 rounded-xl p-3 text-center">
-              <span className="block text-lg font-bold tracking-tight text-sky-400">{stats.processing}</span>
-              <span className="text-[9px] text-zinc-500 font-semibold uppercase tracking-wider mt-0.5 block">Proses</span>
-            </div>
-            <div className="border border-zinc-900 bg-emerald-500/5 rounded-xl p-3 text-center">
-              <span className="block text-lg font-bold tracking-tight text-emerald-400">{stats.completed}</span>
-              <span className="text-[9px] text-zinc-500 font-semibold uppercase tracking-wider mt-0.5 block">Beres</span>
-            </div>
-          </div>
+        {/* Cinematic Text Overlay */}
+        <div className="relative z-10 max-w-7xl w-full mx-auto space-y-3">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white font-sans uppercase">
+            Semua <span className="font-serif italic font-normal text-[#DEDBC8] normal-case">Aduan Warga</span>
+          </h1>
+          <p className="text-sm md:text-base text-zinc-400 max-w-xl font-sans leading-relaxed">
+            Transparansi pemantauan laporan darurat, infrastruktur, dan aduan sosial secara terbuka dan real-time di seluruh Indonesia.
+          </p>
         </div>
+      </div>
 
-        {/* Filters and Search Bar Row */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+      {/* Sticky Filter Bar */}
+      <div className="sticky top-[60px] z-30 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-900/60 py-4 px-6 md:px-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {/* Search bar */}
-          <div className="relative md:col-span-3">
+          <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
             <input 
               type="text"
               placeholder="Cari pelapor, kategori, kata aduan..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 bg-zinc-900/40 border border-zinc-900 focus:border-zinc-800 rounded-xl text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none transition-all font-sans"
+              className="w-full h-10 pl-10 pr-4 bg-zinc-900/40 border border-zinc-800/80 focus:border-zinc-700/80 focus:ring-1 focus:ring-zinc-700 rounded-xl text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none transition-all font-sans"
             />
           </div>
 
           {/* Status Dropdown */}
-          <div className="relative md:col-span-2">
+          <div className="relative">
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-900 focus:border-zinc-800 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none"
+              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-800/80 focus:border-zinc-700/80 focus:ring-1 focus:ring-zinc-700 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none"
             >
               <option value="all">Semua Status</option>
               <option value="Menunggu">Menunggu</option>
@@ -621,7 +377,7 @@ export function AllReports() {
           </div>
 
           {/* Province Dropdown */}
-          <div className="relative md:col-span-2">
+          <div className="relative">
             <select 
               value={provinceFilter}
               onChange={(e) => {
@@ -629,7 +385,7 @@ export function AllReports() {
                 setCityFilter('all')
                 setDistrictFilter('all')
               }}
-              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-900 focus:border-zinc-800 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none"
+              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-800/80 focus:border-zinc-700/80 focus:ring-1 focus:ring-zinc-700 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none"
             >
               <option value="all">Semua Provinsi</option>
               {provinces.map(prov => (
@@ -640,14 +396,14 @@ export function AllReports() {
           </div>
 
           {/* City Dropdown - cascades from province */}
-          <div className="relative md:col-span-2">
+          <div className="relative">
             <select 
               value={cityFilter}
               onChange={(e) => {
                 setCityFilter(e.target.value)
                 setDistrictFilter('all')
               }}
-              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-900 focus:border-zinc-800 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-800/80 focus:border-zinc-700/80 focus:ring-1 focus:ring-zinc-700 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none disabled:opacity-40 disabled:cursor-not-allowed"
               disabled={provinceFilter === 'all'}
             >
               <option value="all">Semua Kota/Kab</option>
@@ -659,11 +415,11 @@ export function AllReports() {
           </div>
 
           {/* District Dropdown - cascades from city */}
-          <div className="relative md:col-span-1.5">
+          <div className="relative">
             <select 
               value={districtFilter}
               onChange={(e) => setDistrictFilter(e.target.value)}
-              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-900 focus:border-zinc-800 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-800/80 focus:border-zinc-700/80 focus:ring-1 focus:ring-zinc-700 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none disabled:opacity-40 disabled:cursor-not-allowed"
               disabled={cityFilter === 'all'}
             >
               <option value="all">Semua Desa/Kec</option>
@@ -675,11 +431,11 @@ export function AllReports() {
           </div>
 
           {/* Grouping Dropdown */}
-          <div className="relative md:col-span-1.5">
+          <div className="relative">
             <select 
               value={groupBy}
               onChange={(e) => setGroupBy(e.target.value as any)}
-              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-900 focus:border-zinc-800 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none"
+              className="w-full h-10 pl-3 pr-10 bg-zinc-900/40 border border-zinc-800/80 focus:border-zinc-700/80 focus:ring-1 focus:ring-zinc-700 rounded-xl text-xs text-zinc-300 focus:outline-none transition-all cursor-pointer font-sans appearance-none"
             >
               <option value="none">Tanpa Grouping</option>
               <option value="province">Grup: Provinsi</option>
@@ -687,6 +443,56 @@ export function AllReports() {
               <option value="district">Grup: Daerah</option>
             </select>
             <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500 pointer-events-none" />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 space-y-8 relative z-10">
+        {/* Stats Cards Section */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Total Card */}
+          <div className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-md rounded-2xl p-4 flex items-center gap-4">
+            <div className="p-3 bg-zinc-800/40 rounded-xl border border-zinc-700/50 text-zinc-300">
+              <FileText className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-2xl font-bold tracking-tight text-white block">{stats.total}</span>
+              <span className="text-xs text-zinc-400 font-medium font-sans">Total Aduan</span>
+            </div>
+          </div>
+
+          {/* Antre Card */}
+          <div className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-md rounded-2xl p-4 flex items-center gap-4">
+            <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 text-amber-400">
+              <Clock className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-2xl font-bold tracking-tight text-amber-400 block">{stats.pending}</span>
+              <span className="text-xs text-zinc-400 font-medium font-sans">Antrean</span>
+            </div>
+          </div>
+
+          {/* Proses Card */}
+          <div className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-md rounded-2xl p-4 flex items-center gap-4">
+            <div className="p-3 bg-sky-500/10 rounded-xl border border-sky-500/20 text-sky-400">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </div>
+            <div>
+              <span className="text-2xl font-bold tracking-tight text-sky-400 block">{stats.processing}</span>
+              <span className="text-xs text-zinc-400 font-medium font-sans">Diproses</span>
+            </div>
+          </div>
+
+          {/* Selesai Card */}
+          <div className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-md rounded-2xl p-4 flex items-center gap-4">
+            <div className="p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-2xl font-bold tracking-tight text-emerald-400 block">{stats.completed}</span>
+              <span className="text-xs text-zinc-400 font-medium font-sans">Selesai</span>
+            </div>
           </div>
         </div>
 
@@ -713,7 +519,7 @@ export function AllReports() {
                 </div>
                 <button 
                   onClick={() => { setSearch(''); setStatusFilter('all'); setProvinceFilter('all'); setCityFilter('all'); setDistrictFilter('all'); setGroupBy('none'); }}
-                  className="px-3.5 py-1.5 text-[11px] font-bold tracking-wide rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 border border-zinc-800 cursor-pointer"
+                  className="px-3.5 py-1.5 text-[11px] font-bold tracking-wide rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 border border-zinc-800 cursor-pointer font-sans"
                 >
                   Atur Ulang Filter
                 </button>
@@ -737,52 +543,51 @@ export function AllReports() {
                           variants={fadeUp}
                           onClick={() => setSelectedReport(report)}
                           className={cn(
-                            "group border text-left rounded-2xl p-5 cursor-pointer transition-all duration-300 relative overflow-hidden backdrop-blur-sm select-none",
+                            "group text-left cursor-pointer transition-all duration-300 relative overflow-hidden backdrop-blur-sm select-none rounded-2xl p-6",
                             isSelected 
-                              ? "bg-zinc-900/50 border-zinc-700/60 shadow-[0_4px_20px_rgba(0,0,0,0.3)]" 
-                              : "bg-zinc-900/20 hover:bg-zinc-900/40 border-zinc-900 hover:border-zinc-850"
+                              ? "bg-zinc-900/60 border-[#DEDBC8]/50 shadow-[0_4px_30px_rgba(0,0,0,0.5)]" 
+                              : "bg-zinc-900/30 border border-zinc-900/80 hover:bg-zinc-900/50 hover:border-[#DEDBC8]/40 hover:shadow-[0_4px_30px_rgba(0,0,0,0.4)]"
                           )}
                         >
-                          {/* Interactive glow border corner */}
-                          <div className={cn(
-                            "absolute top-0 right-0 h-[4px] w-20 rounded-bl-full transition-all duration-300",
-                            report.status === 'Menunggu' && "bg-amber-500/50",
-                            report.status === 'Diproses' && "bg-sky-500/50",
-                            report.status === 'Selesai' && "bg-emerald-500/50",
-                            report.status === 'Ditolak' && "bg-rose-500/50"
-                          )} />
-
                           <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="space-y-1">
                               <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400/90 font-mono">
                                 {report.category}
                               </span>
-                              <h3 className="text-xs font-bold text-zinc-100 group-hover:text-white transition-colors tracking-tight leading-snug mt-0.5">
+                              <h3 className="text-xs font-bold text-zinc-100 group-hover:text-white transition-colors tracking-tight leading-snug mt-0.5 font-sans">
                                 {report.reporter_name}
                               </h3>
                             </div>
 
-                            <span className={cn(
-                              "px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full border shrink-0 font-mono select-none",
-                              badge.text, badge.bg, badge.border
-                            )}>
-                              {badge.label}
-                            </span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", 
+                                report.status === 'Menunggu' && "bg-amber-400 animate-pulse",
+                                report.status === 'Diproses' && "bg-sky-400 animate-pulse",
+                                report.status === 'Selesai' && "bg-emerald-400",
+                                report.status === 'Ditolak' && "bg-rose-400"
+                              )} />
+                              <span className={cn(
+                                "px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full border font-mono select-none",
+                                badge.text, badge.bg, badge.border
+                              )}>
+                                {badge.label}
+                              </span>
+                            </div>
                           </div>
 
-                          <p className="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors line-clamp-2 leading-relaxed mb-4">
+                          <p className="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors line-clamp-2 leading-relaxed mb-4 font-sans">
                             {report.description}
                           </p>
 
                           <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-900/80 text-[10px] text-zinc-500 font-mono font-medium">
                             <div className="flex items-center gap-1.5">
-                              <Calendar className="h-3 w-3 shrink-0 text-zinc-600" />
+                              <Calendar className="h-3.5 w-3.5 shrink-0 text-zinc-650" />
                               <span>{formatDate(report.created_at)}</span>
                             </div>
 
                             {report.province && (
                               <div className="flex items-center gap-1">
-                                <MapPin className="h-3 w-3 shrink-0 text-zinc-600" />
+                                <MapPin className="h-3.5 w-3.5 shrink-0 text-zinc-650" />
                                 <span className="truncate max-w-[150px]">{report.city || report.province}</span>
                               </div>
                             )}
@@ -795,8 +600,8 @@ export function AllReports() {
                   Object.entries(groupedReports || {}).map(([groupName, groupItems]) => (
                     <div key={`group-${groupName}`} className="space-y-3">
                       <div className="flex items-center gap-2 border-b border-zinc-900/80 pb-2 sticky top-[72px] bg-zinc-950/90 backdrop-blur-sm z-20">
-                        <MapPin className="h-4 w-4 text-indigo-400" />
-                        <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
+                        <MapPin className="h-4 w-4 text-[#DEDBC8]" />
+                        <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider font-sans">
                           {groupBy === 'province' ? 'Provinsi' : groupBy === 'city' ? 'Kabupaten' : 'Daerah'}: {groupName}
                         </h3>
                         <span className="rounded-full bg-zinc-900 border border-zinc-800 px-2 py-0.5 text-[10px] text-zinc-500 font-mono font-semibold">
@@ -819,52 +624,51 @@ export function AllReports() {
                               variants={fadeUp}
                               onClick={() => setSelectedReport(report)}
                               className={cn(
-                                "group border text-left rounded-2xl p-5 cursor-pointer transition-all duration-300 relative overflow-hidden backdrop-blur-sm select-none",
+                                "group text-left cursor-pointer transition-all duration-300 relative overflow-hidden backdrop-blur-sm select-none rounded-2xl p-6",
                                 isSelected 
-                                  ? "bg-zinc-900/50 border-zinc-700/60 shadow-[0_4px_20px_rgba(0,0,0,0.3)]" 
-                                  : "bg-zinc-900/20 hover:bg-zinc-900/40 border-zinc-900 hover:border-zinc-850"
+                                  ? "bg-zinc-900/60 border-[#DEDBC8]/50 shadow-[0_4px_30px_rgba(0,0,0,0.5)]" 
+                                  : "bg-zinc-900/30 border border-zinc-900/80 hover:bg-zinc-900/50 hover:border-[#DEDBC8]/40 hover:shadow-[0_4px_30px_rgba(0,0,0,0.4)]"
                               )}
                             >
-                              {/* Interactive glow border corner */}
-                              <div className={cn(
-                                "absolute top-0 right-0 h-[4px] w-20 rounded-bl-full transition-all duration-300",
-                                report.status === 'Menunggu' && "bg-amber-500/50",
-                                report.status === 'Diproses' && "bg-sky-500/50",
-                                report.status === 'Selesai' && "bg-emerald-500/50",
-                                report.status === 'Ditolak' && "bg-rose-500/50"
-                              )} />
-
                               <div className="flex items-start justify-between gap-4 mb-3">
                                 <div className="space-y-1">
                                   <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400/90 font-mono">
                                     {report.category}
                                   </span>
-                                  <h3 className="text-xs font-bold text-zinc-100 group-hover:text-white transition-colors tracking-tight leading-snug mt-0.5">
+                                  <h3 className="text-xs font-bold text-zinc-100 group-hover:text-white transition-colors tracking-tight leading-snug mt-0.5 font-sans">
                                     {report.reporter_name}
                                   </h3>
                                 </div>
 
-                                <span className={cn(
-                                  "px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full border shrink-0 font-mono select-none",
-                                  badge.text, badge.bg, badge.border
-                                )}>
-                                  {badge.label}
-                                </span>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", 
+                                    report.status === 'Menunggu' && "bg-amber-400 animate-pulse",
+                                    report.status === 'Diproses' && "bg-sky-400 animate-pulse",
+                                    report.status === 'Selesai' && "bg-emerald-400",
+                                    report.status === 'Ditolak' && "bg-rose-400"
+                                  )} />
+                                  <span className={cn(
+                                    "px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full border font-mono select-none",
+                                    badge.text, badge.bg, badge.border
+                                  )}>
+                                    {badge.label}
+                                  </span>
+                                </div>
                               </div>
 
-                              <p className="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors line-clamp-2 leading-relaxed mb-4">
+                              <p className="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors line-clamp-2 leading-relaxed mb-4 font-sans">
                                 {report.description}
                               </p>
 
                               <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-900/80 text-[10px] text-zinc-500 font-mono font-medium">
                                 <div className="flex items-center gap-1.5">
-                                  <Calendar className="h-3 w-3 shrink-0 text-zinc-600" />
+                                  <Calendar className="h-3.5 w-3.5 shrink-0 text-zinc-650" />
                                   <span>{formatDate(report.created_at)}</span>
                                 </div>
 
                                 {report.province && (
                                   <div className="flex items-center gap-1">
-                                    <MapPin className="h-3 w-3 shrink-0 text-zinc-600" />
+                                    <MapPin className="h-3.5 w-3.5 shrink-0 text-zinc-650" />
                                     <span className="truncate max-w-[150px]">{report.city || report.province}</span>
                                   </div>
                                 )}
@@ -881,15 +685,15 @@ export function AllReports() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-zinc-800">
-                <span className="text-xs text-zinc-500">
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-zinc-800/80">
+                <span className="text-xs text-zinc-500 font-sans">
                   Menampilkan {reports.length} dari {total} laporan - Halaman {currentPage} dari {totalPages}
                 </span>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-1.5 rounded-lg border border-zinc-700 text-xs text-zinc-300 hover:border-zinc-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                    className="px-3 py-1.5 rounded-lg border border-zinc-800 text-xs text-zinc-300 hover:border-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition font-sans"
                   >
                     Sebelumnya
                   </button>
@@ -901,10 +705,10 @@ export function AllReports() {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-semibold font-sans transition ${
                           page === currentPage
-                            ? 'border-purple-600 bg-purple-600/20 text-purple-300'
-                            : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
+                            ? 'border-[#DEDBC8] bg-[#DEDBC8]/10 text-[#DEDBC8]'
+                            : 'border-zinc-800 text-zinc-400 hover:border-[#DEDBC8]/30 hover:text-zinc-200'
                         }`}
                       >
                         {page}
@@ -914,7 +718,7 @@ export function AllReports() {
                   <button
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1.5 rounded-lg border border-zinc-700 text-xs text-zinc-300 hover:border-zinc-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                    className="px-3 py-1.5 rounded-lg border border-zinc-800 text-xs text-zinc-300 hover:border-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition font-sans"
                   >
                     Selanjutnya
                   </button>
@@ -933,7 +737,7 @@ export function AllReports() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.98, y: 10 }}
                   transition={{ duration: 0.3 }}
-                  className="border border-zinc-900 bg-zinc-900/20 backdrop-blur-md rounded-2xl p-6 space-y-6 relative overflow-hidden"
+                  className="border border-zinc-800/80 bg-zinc-950/60 backdrop-blur-md rounded-2xl p-6 space-y-6 relative overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.3)]"
                 >
                   {/* Subtle decorative glow overlay inside panel */}
                   <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-zinc-800/10 blur-3xl pointer-events-none" />
@@ -941,10 +745,10 @@ export function AllReports() {
                   {/* Header Details */}
                   <div className="flex items-start justify-between gap-4 border-b border-zinc-900 pb-5 relative z-10 select-none">
                     <div className="space-y-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 font-mono">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[#DEDBC8] font-mono">
                         {selectedReport.category}
                       </span>
-                      <h3 className="text-sm font-bold text-white tracking-tight mt-0.5">
+                      <h3 className="text-sm font-bold text-white tracking-tight mt-0.5 font-sans">
                         Aduan #{selectedReport.id.slice(0, 8)}
                       </h3>
                       <div className="flex items-center gap-1 text-[10px] text-zinc-500 font-mono">
@@ -966,13 +770,13 @@ export function AllReports() {
                   {/* Description Section */}
                   <div className="space-y-2 relative z-10">
                     <h4 className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Uraian Masalah</h4>
-                    <p className="text-[12px] text-zinc-300 leading-relaxed font-sans bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/65">
+                    <p className="text-[12px] text-zinc-350 leading-relaxed font-sans bg-zinc-900/40 p-4 rounded-xl border border-zinc-800/50">
                       {selectedReport.description}
                     </p>
                   </div>
 
                   {/* Regional and Location Details */}
-                  <div className="grid grid-cols-2 gap-4 relative z-10">
+                  <div className="grid grid-cols-2 gap-4 relative z-10 font-sans">
                     <div className="space-y-1">
                       <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Wilayah Provinsi</span>
                       <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.province || '-'}</span>
@@ -999,18 +803,18 @@ export function AllReports() {
                       <h4 className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono flex items-center gap-1.5">
                         <ImageIcon className="h-3 w-3 text-zinc-500" /> Lampiran Foto
                       </h4>
-                      <div className="relative aspect-video rounded-xl overflow-hidden border border-zinc-900 bg-zinc-950 flex items-center justify-center">
+                      <div className="relative aspect-video rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-900/60 flex items-center justify-center p-1">
                         <img 
                           src={selectedReport.image_url.startsWith('data:') ? selectedReport.image_url : `data:image/jpeg;base64,${selectedReport.image_url}`} 
                           alt="Lampiran aduan" 
-                          className="w-full h-full object-cover" 
+                          className="w-full h-full object-cover rounded-lg" 
                         />
                       </div>
                     </div>
                   )}
 
                   {/* Reporter Contact Info */}
-                  <div className="border-t border-zinc-900 pt-5 space-y-3 relative z-10">
+                  <div className="border-t border-zinc-900 pt-5 space-y-3 relative z-10 font-sans">
                     <h4 className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Identitas Pelapor</h4>
                     <div className="flex flex-col gap-2.5 text-xs">
                       <div className="flex items-center gap-2.5 text-zinc-300">
@@ -1026,11 +830,11 @@ export function AllReports() {
 
                   {/* Admin Follow Up Note */}
                   {selectedReport.admin_note && (
-                    <div className="border-t border-zinc-900 pt-5 space-y-2 relative z-10">
+                    <div className="border-t border-zinc-900 pt-5 space-y-2 relative z-10 font-sans">
                       <h4 className="text-[10px] uppercase tracking-wider text-amber-500/90 font-bold font-mono flex items-center gap-1.5">
                         <AlertTriangle className="h-3 w-3 text-amber-500/80" /> Catatan Petugas
                       </h4>
-                      <p className="text-[11px] text-zinc-300 leading-relaxed font-sans bg-amber-500/5 border border-amber-500/10 p-4 rounded-xl">
+                      <p className="text-[11px] text-zinc-350 leading-relaxed font-sans bg-amber-500/5 border border-amber-500/10 p-4 rounded-xl">
                         {selectedReport.admin_note}
                       </p>
                     </div>
@@ -1038,7 +842,7 @@ export function AllReports() {
 
                   {/* Action Link (e.g. Chat/Contact) if User is Staff */}
                   {user && ['admin', 'superadmin', 'petugas'].includes(user.role) && (
-                    <div className="border-t border-zinc-900 pt-5 flex gap-3 relative z-10">
+                    <div className="border-t border-zinc-900 pt-5 flex gap-3 relative z-10 font-sans">
                       <button 
                         onClick={() => navigate('/admin')}
                         className="flex-1 h-9 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white border border-zinc-800 text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer"
@@ -1053,7 +857,7 @@ export function AllReports() {
                 <div className="hidden lg:flex flex-col items-center justify-center border border-zinc-900 bg-zinc-900/10 border-dashed rounded-2xl p-12 text-center h-[400px] select-none text-zinc-500">
                   <MapPin className="h-6 w-6 text-zinc-700 animate-pulse mb-3" />
                   <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">Detail Laporan</p>
-                  <p className="text-[11px] max-w-xs leading-relaxed mt-1 text-zinc-600">
+                  <p className="text-[11px] max-w-xs leading-relaxed mt-1 text-zinc-500 font-sans">
                     Pilih salah satu laporan aduan dari daftar di sebelah kiri untuk melihat detail data wilayah, koordinat, foto pendukung, dan riwayat tindak lanjut petugas.
                   </p>
                 </div>
@@ -1075,7 +879,7 @@ export function AllReports() {
             className="lg:hidden fixed inset-0 z-50 bg-zinc-950 flex flex-col"
           >
             {/* Header */}
-            <header className="flex h-14 items-center justify-between px-4 border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md shrink-0">
+            <header className="flex h-14 items-center justify-between px-4 border-b border-zinc-800/80 bg-zinc-900/60 backdrop-blur-md shrink-0">
               <div className="flex items-center gap-3">
                 <button
                   className="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
@@ -1083,7 +887,7 @@ export function AllReports() {
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
-                <h1 className="text-xs font-bold text-zinc-100 uppercase tracking-wider">
+                <h1 className="text-xs font-bold text-zinc-100 uppercase tracking-wider font-sans">
                   Detail Pengaduan
                 </h1>
               </div>
@@ -1101,10 +905,10 @@ export function AllReports() {
             <div className="flex-1 overflow-y-auto p-5 space-y-6">
               {/* Header details */}
               <div className="border-b border-zinc-900 pb-4">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400/90 font-mono">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#DEDBC8] font-mono">
                   {selectedReport.category}
                 </span>
-                <h3 className="text-sm font-bold text-white tracking-tight mt-0.5">
+                <h3 className="text-sm font-bold text-white tracking-tight mt-0.5 font-sans">
                   Aduan #{selectedReport.id.slice(0, 8)}
                 </h3>
                 <div className="flex items-center gap-1 text-[10px] text-zinc-500 font-mono mt-1">
@@ -1116,13 +920,13 @@ export function AllReports() {
               {/* Description */}
               <div className="space-y-2">
                 <h4 className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Uraian Masalah</h4>
-                <p className="text-[12px] text-zinc-300 leading-relaxed font-sans bg-zinc-900/40 p-4 rounded-xl border border-zinc-900/65">
+                <p className="text-[12px] text-zinc-350 leading-relaxed font-sans bg-zinc-900/40 p-4 rounded-xl border border-zinc-800/50">
                   {selectedReport.description}
                 </p>
               </div>
 
               {/* Regional info */}
-              <div className="grid grid-cols-2 gap-4 bg-zinc-900/20 p-4 rounded-xl border border-zinc-900/50">
+              <div className="grid grid-cols-2 gap-4 bg-zinc-900/40 p-4 rounded-xl border border-zinc-800/60 font-sans">
                 <div className="space-y-1">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Wilayah Provinsi</span>
                   <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.province || '-'}</span>
@@ -1147,11 +951,11 @@ export function AllReports() {
               {selectedReport.image_url && (
                 <div className="space-y-2">
                   <h4 className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono flex items-center gap-1.5">
-                    <ImageIcon className="h-3 w-3 text-zinc-500" /> Lampiran Foto
+                    <ImageIcon className="h-3 w-3 text-zinc-550" /> Lampiran Foto
                   </h4>
-                  <div className="rounded-xl overflow-hidden border border-zinc-900 bg-zinc-900/40 p-2">
+                  <div className="rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-900/60 p-2">
                     <img 
-                      src={selectedReport.image_url} 
+                      src={selectedReport.image_url.startsWith('data:') ? selectedReport.image_url : `data:image/jpeg;base64,${selectedReport.image_url}`} 
                       alt="Lampiran aduan" 
                       className="w-full h-auto max-h-[300px] object-contain rounded-lg"
                     />
@@ -1161,23 +965,25 @@ export function AllReports() {
 
               {/* Admin note */}
               {selectedReport.admin_note && (
-                <div className="space-y-2 border-t border-zinc-900 pt-4">
-                  <h4 className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Tanggapan Petugas</h4>
-                  <p className="text-[12px] text-emerald-400 leading-relaxed font-sans bg-emerald-950/20 p-4 rounded-xl border border-emerald-900/20">
+                <div className="space-y-2 border-t border-zinc-900 pt-4 font-sans">
+                  <h4 className="text-[10px] uppercase tracking-wider text-amber-500/90 font-bold font-mono flex items-center gap-1.5">
+                    <AlertTriangle className="h-3 w-3 text-amber-500/80" /> Catatan Petugas
+                  </h4>
+                  <p className="text-[12px] text-zinc-350 leading-relaxed font-sans bg-amber-500/5 border border-amber-500/10 p-4 rounded-xl">
                     {selectedReport.admin_note}
                   </p>
                 </div>
               )}
 
               {/* Chat action if staff */}
-              {['admin', 'superadmin', 'petugas'].includes(user?.role || '') && (
-                <div className="border-t border-zinc-900 pt-4 flex gap-3">
+              {user && ['admin', 'superadmin', 'petugas'].includes(user.role) && (
+                <div className="border-t border-zinc-900 pt-4 flex gap-3 font-sans">
                   <button 
                     onClick={() => {
                       setSelectedReport(null)
                       navigate('/admin')
                     }}
-                    className="w-full h-10 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-350 hover:text-white border border-zinc-800 text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    className="w-full h-10 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-350 hover:text-white border border-zinc-800/80 text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer"
                   >
                     <MessageSquare className="h-3.5 w-3.5 text-zinc-400" />
                     Buka Ruang Obrolan

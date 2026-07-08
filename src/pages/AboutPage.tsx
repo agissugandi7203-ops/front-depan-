@@ -17,15 +17,11 @@ import {
   CheckCircle2,
   Lock,
   Eye,
-  Info,
-  Menu,
-  X
+  Info
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Navbar } from '@/components/Navbar'
 import { useChatStore } from '@/store/chatStore'
 import { useAuthStore } from '@/store/authStore'
-import { useAuthModalStore } from '@/store/authModalStore'
-import { useToast } from '@/components/ui/toast'
 import Footer4Col from '@/components/ui/footer-column'
 
 // Tabs definitions
@@ -146,13 +142,9 @@ export function AboutPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
   const [activeTab, setActiveTab] = useState('visi')
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
   const { createSession, setCurrentSession } = useChatStore()
   
-  const { isAuthenticated, user, logout, checkMe } = useAuthStore()
-  const { openModal } = useAuthModalStore()
-  const { toast } = useToast()
+  const { isAuthenticated, user, checkMe } = useAuthStore()
 
   useEffect(() => {
     if (isAuthenticated && !user) {
@@ -188,243 +180,7 @@ export function AboutPage() {
       </div>
 
       {/* ── Header / Navbar ── */}
-      <motion.header
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 h-[60px] px-6 md:px-10 flex items-center justify-between border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.8)]"
-      >
-        {/* Brand logo & name */}
-        <div 
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2.5 select-none cursor-pointer group"
-        >
-          <img src="/assets/logo/komunitas.png" alt="KOMUNITAS Logo" className="h-7 w-7 object-contain rounded-md transition-opacity group-hover:opacity-85" />
-          <span className="font-semibold text-[15px] tracking-[-0.02em] text-zinc-100">KOMUNITAS</span>
-        </div>
-
-        {/* Navigation links */}
-        <nav className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-7">
-          <button
-            className="text-[13px] text-zinc-400 hover:text-zinc-100 transition-colors tracking-[-0.01em] cursor-pointer"
-            onClick={() => {
-              navigate('/')
-              setTimeout(() => {
-                document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
-              }, 100)
-            }}
-          >
-            Layanan
-          </button>
-          <button
-            className="text-[13px] text-zinc-400 hover:text-zinc-100 transition-colors tracking-[-0.01em] cursor-pointer"
-            onClick={() => {
-              navigate('/')
-              setTimeout(() => {
-                document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })
-              }, 100)
-            }}
-          >
-            Verifikasi
-          </button>
-          <button
-            className="text-[13px] text-zinc-400 hover:text-zinc-100 transition-colors tracking-[-0.01em] cursor-pointer"
-            onClick={() => navigate('/all-reports')}
-          >
-            Semua Aduan
-          </button>
-          <button
-            className="text-[13px] text-zinc-100 font-semibold transition-colors tracking-[-0.01em] cursor-pointer"
-            onClick={() => handleTabChange('visi')}
-          >
-            Tentang
-          </button>
-        </nav>
-
-        {/* Desktop Buttons */}
-        <div className="hidden md:flex items-center gap-3">
-          {isAuthenticated && user ? (
-            <div className="flex items-center gap-3">
-              {/* User profile info */}
-              <div 
-                onClick={() => navigate('/profile')}
-                className="hidden md:flex flex-col items-end text-right select-none cursor-pointer hover:opacity-80 transition"
-              >
-                <span className="text-[12px] font-bold tracking-tight text-zinc-100">
-                  {user.nama_panggilan || user.nama_lengkap}
-                </span>
-                <span className="text-[9px] uppercase font-mono text-zinc-500 font-semibold tracking-wider leading-none mt-0.5">
-                  [{user.role}]
-                </span>
-              </div>
-
-              {/* Profile Button */}
-              <button
-                onClick={() => navigate('/profile')}
-                className="h-8 px-3 text-[11px] font-bold rounded-lg tracking-wide border bg-zinc-800 hover:bg-zinc-750 text-zinc-200 border-zinc-700 transition-all duration-300 active:scale-[0.97] cursor-pointer"
-              >
-                Profil
-              </button>
-              
-              {/* Logout Button */}
-              <button
-                onClick={() => {
-                  logout()
-                  toast({ title: 'Sesi Berakhir', description: 'Anda telah berhasil keluar dari sistem.', type: 'info' })
-                }}
-                className="h-8 px-3 text-[11px] font-bold rounded-lg tracking-wide border bg-zinc-900 hover:bg-zinc-850 text-zinc-200 border-zinc-800 transition-all duration-300 active:scale-[0.97] cursor-pointer"
-              >
-                Keluar
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => openModal('login')}
-                className="h-8 px-4 text-[12px] font-medium rounded-full border border-zinc-800/80 hover:border-zinc-700 bg-transparent text-zinc-300 hover:text-white transition-all duration-300 active:scale-[0.97] cursor-pointer"
-              >
-                Masuk
-              </button>
-            </div>
-          )}
-          
-          <Button
-            onClick={handleStartChat}
-            className="h-8 px-4 text-[12px] font-medium rounded-md tracking-[-0.01em] transition-all duration-300 active:scale-[0.97] shadow-none cursor-pointer bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 hover:text-white"
-          >
-            Mulai Percakapan
-          </Button>
-        </div>
-
-        {/* Mobile menu button */}
-        <div className="flex md:hidden items-center">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-zinc-200 hover:text-white transition-colors cursor-pointer"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-      </motion.header>
-
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed top-[60px] left-0 right-0 z-40 bg-zinc-950/95 backdrop-blur-lg border-b border-zinc-900 md:hidden overflow-hidden flex flex-col px-6 py-6 space-y-6"
-          >
-            {/* Links */}
-            <div className="flex flex-col space-y-4">
-              <button
-                className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  navigate('/')
-                  setTimeout(() => {
-                    document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
-                  }, 150)
-                }}
-              >
-                Layanan
-              </button>
-              <button
-                className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  navigate('/')
-                  setTimeout(() => {
-                    document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })
-                  }, 150)
-                }}
-              >
-                Verifikasi
-              </button>
-              <button
-                className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  navigate('/all-reports')
-                }}
-              >
-                Semua Aduan
-              </button>
-              <button
-                className="text-left text-[15px] font-medium text-zinc-100 font-semibold transition-colors py-1 cursor-pointer"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  handleTabChange('visi')
-                }}
-              >
-                Tentang
-              </button>
-            </div>
-
-            <div className="h-px bg-zinc-900 w-full" />
-
-            {/* Auth Actions */}
-            <div className="flex flex-col gap-3">
-              {isAuthenticated && user ? (
-                <>
-                  <div className="flex items-center gap-3 pb-2">
-                    <div className="h-9 w-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center font-bold text-zinc-200">
-                      {(user.nama_panggilan || user.nama_lengkap)[0]?.toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-bold text-zinc-200">{user.nama_lengkap}</div>
-                      <div className="text-[10px] font-mono text-zinc-500 uppercase">[{user.role}]</div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      navigate('/profile')
-                    }}
-                    className="w-full h-10 border border-zinc-800 hover:bg-zinc-900 text-zinc-200 font-medium rounded-lg text-sm transition-colors cursor-pointer"
-                  >
-                    Profil Saya
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      logout()
-                      toast({ title: 'Sesi Berakhir', description: 'Anda telah berhasil keluar.', type: 'info' })
-                    }}
-                    className="w-full h-10 border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900 text-rose-400 hover:text-rose-350 font-medium rounded-lg text-sm transition-colors cursor-pointer"
-                  >
-                    Keluar
-                  </button>
-                </>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      openModal('login')
-                    }}
-                    className="w-full h-10 border border-zinc-850 hover:bg-zinc-900 text-zinc-250 font-medium rounded-lg text-sm transition-colors cursor-pointer"
-                  >
-                    Masuk
-                  </button>
-                </div>
-              )}
-
-              <Button
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  handleStartChat()
-                }}
-                className="w-full h-10 bg-white hover:bg-zinc-100 text-zinc-950 font-semibold rounded-lg text-sm transition-all active:scale-[0.98] mt-2 cursor-pointer shadow-lg"
-              >
-                Mulai Percakapan
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Navbar activeItem="Tentang" onCtaClick={handleStartChat} />
 
       {/* ── Main Content Container ── */}
       <main className="relative z-10 flex-1 max-w-4xl w-full mx-auto px-6 pt-24 pb-28 flex flex-col gap-10">

@@ -2452,17 +2452,21 @@ export function AdminDashboard() {
     { icon: FileSpreadsheet, label: 'Ringkasan (AI)',  value: stats.totalSummaries || 0,         colorClass: 'text-teal-400',   sub: 'Dokumen regulasi diringkas' },
   ] : []
 
-  const navItems = [
-    { id: 'overview',    label: 'Ringkasan',       icon: LayoutDashboard,  desc: 'Monitoring Overview' },
-    { id: 'reports',     label: 'Laporan Warga',   icon: FileText,         desc: 'Citizen Reports' },
-    { id: 'services',    label: 'Direktori RAG',   icon: BookOpen,         desc: 'RAG Knowledge Directory' },
-    { id: 'claims',      label: 'Cek Fakta',       icon: Shield,           desc: 'Fact Check & Claims' },
-    { id: 'summaries',   label: 'Ringkasan Dok',   icon: FileSpreadsheet,  desc: 'Regulation Summaries' },
-    { id: 'histories',   label: 'Riwayat Chat',    icon: MessageSquare,    desc: 'Chat History Logs' },
-    { id: 'percakapan',  label: 'Percakapan Aktif',icon: MessageSquare,    desc: 'Live Active Chats' },
-    { id: 'staff',       label: 'Kelola Staf',     icon: Users,            desc: 'Staff Management' },
-    { id: 'hoaks',       label: 'Database Hoaks',  icon: AlertTriangle,    desc: 'WhatsApp Hoax DB' },
+  const navItemsAll = [
+    { id: 'overview',    label: 'Ringkasan',        icon: LayoutDashboard,  desc: 'Monitoring Overview',     roles: ['petugas','admin','superadmin'] },
+    { id: 'reports',     label: 'Laporan Warga',    icon: FileText,          desc: 'Citizen Reports',         roles: ['petugas','admin','superadmin'] },
+    { id: 'percakapan',  label: 'Percakapan Aktif', icon: MessageSquare,     desc: 'Live Active Chats',       roles: ['petugas','admin','superadmin'] },
+    { id: 'services',    label: 'Direktori RAG',    icon: BookOpen,          desc: 'RAG Knowledge Directory', roles: ['admin','superadmin'] },
+    { id: 'claims',      label: 'Cek Fakta',        icon: Shield,            desc: 'Fact Check & Claims',     roles: ['admin','superadmin'] },
+    { id: 'summaries',   label: 'Ringkasan Dok',    icon: FileSpreadsheet,   desc: 'Regulation Summaries',    roles: ['superadmin'] },
+    { id: 'histories',   label: 'Riwayat Chat',     icon: MessageSquare,     desc: 'Chat History Logs',       roles: ['superadmin'] },
+    { id: 'staff',       label: 'Kelola Staf',      icon: Users,             desc: 'Staff Management',        roles: ['superadmin'] },
+    { id: 'hoaks',       label: 'Database Hoaks',   icon: AlertTriangle,     desc: 'WhatsApp Hoax DB',        roles: ['superadmin'] },
   ] as const
+
+  const navItems = navItemsAll.filter(item =>
+    (item.roles as readonly string[]).includes(user?.role || '')
+  )
 
   return (
     <div className="flex min-h-screen bg-zinc-950 text-zinc-100 font-sans antialiased overflow-x-hidden">

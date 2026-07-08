@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { Loader2, ShieldAlert } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { useAuthModalStore } from '@/store/authModalStore'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -15,6 +16,7 @@ interface ProtectedRouteProps {
  */
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { isAuthenticated, user, checkMe, isLoading } = useAuthStore()
+  const { openModal } = useAuthModalStore()
   const [checking, setChecking] = useState(true)
   const location = useLocation()
 
@@ -46,9 +48,11 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     )
   }
 
-  // Jika tidak memiliki token/tidak login, alihkan ke /login
+  // Jika tidak memiliki token/tidak login: buka AuthModal dan redirect ke /
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    // Panggil via store state agar modal terbuka di landing page
+    useAuthModalStore.getState().openModal('login')
+    return <Navigate to="/" state={{ from: location }} replace />
   }
 
   // Jika login namun perannya tidak termasuk dalam allowedRoles

@@ -6,7 +6,7 @@ import {
   ArrowRight, Loader2, Sparkles,
   RefreshCw, CheckCircle2,
   AlertOctagon, HelpCircle,
-  Camera, X, Menu, Paperclip, FileSpreadsheet
+  Camera, X, Paperclip, FileSpreadsheet
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { chatService } from '@/services/api'
@@ -17,6 +17,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useAuthModalStore } from '@/store/authModalStore'
 import Footer4Col from '@/components/ui/footer-column'
 import { MermaidDiagram } from '@/components/MermaidDiagram'
+import { Navbar } from '@/components/Navbar'
 
 // ─── Shared animation presets ────────────────────────────────────────────────
 const fadeUp = {
@@ -477,202 +478,7 @@ export function HomePage() {
       </div>
 
       {/* ══ HEADER ═══════════════════════════════════════════════════════════ */}
-      <motion.header
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-5 left-4 right-4 z-50 h-[72px] max-w-5xl mx-auto px-8 flex items-center justify-between transition-all duration-300 rounded-full border border-zinc-800 bg-zinc-950/80 backdrop-blur-xl shadow-[0_12px_30px_rgba(0,0,0,0.6)]"
-      >
-        {/* Left Section: Logo (aligned to left) */}
-        <div className="flex-1 flex justify-start">
-          <div className="flex items-center gap-2.5 select-none cursor-pointer" onClick={() => navigate('/')}>
-            <img src="/assets/logo/komunitas.png" alt="KOMUNITAS Logo" className="h-9 w-9 object-contain rounded-md" loading="lazy" />
-            <span className="font-semibold text-[17px] tracking-[-0.02em] text-white">KOMUNITAS</span>
-          </div>
-        </div>
-
-        {/* Center Section: Navigation Links (perfectly centered & balanced gap) */}
-        <nav className="hidden md:flex flex-initial items-center gap-10">
-          {['Layanan', 'Verifikasi', 'Semua Aduan', 'Tentang'].map((item) => (
-            <button
-              key={item}
-              className="group relative py-1.5 text-[14px] text-zinc-400 hover:text-white font-medium transition-colors duration-300 tracking-[-0.01em] cursor-pointer"
-              onClick={() => {
-                if (item === 'Verifikasi') {
-                  document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })
-                } else if (item === 'Tentang') {
-                  navigate('/about')
-                } else if (item === 'Layanan') {
-                  document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
-                } else if (item === 'Semua Aduan') {
-                  navigate('/all-reports')
-                }
-              }}
-            >
-              <span>{item}</span>
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full" />
-            </button>
-          ))}
-        </nav>
-
-        {/* Right Section: Desktop Action Buttons (aligned to right, flat structure, spacious gaps) */}
-        <div className="hidden md:flex flex-1 justify-end items-center gap-5">
-          {isAuthenticated && user ? (
-            <>
-              {/* User profile info */}
-              <div 
-                onClick={() => navigate('/profile')}
-                className="flex flex-col items-end text-right select-none cursor-pointer hover:opacity-80 transition animate-fade-in mr-1"
-              >
-                <span className="text-[13px] font-medium tracking-tight text-zinc-100">{user.nama_panggilan || user.nama_lengkap}</span>
-                <span className="text-[10px] uppercase font-mono text-zinc-500 font-medium tracking-wider leading-none mt-0.5">[{user.role}]</span>
-              </div>
-
-              {/* Profile Button */}
-              <button
-                onClick={() => navigate('/profile')}
-                className="h-10 px-5 text-[13px] font-medium text-zinc-200 hover:text-white bg-zinc-900/60 hover:bg-zinc-800 border border-zinc-800/80 hover:border-zinc-700 rounded-full transition-all duration-300 active:scale-[0.97] cursor-pointer"
-              >
-                Profil
-              </button>
-              
-              {/* Logout Button */}
-              <button
-                onClick={() => {
-                  logout()
-                  toast({ title: 'Sesi Berakhir', description: 'Anda telah berhasil keluar dari sistem.', type: 'info' })
-                }}
-                className="h-10 px-5 text-[13px] font-medium text-zinc-400 hover:text-rose-450 bg-zinc-950/60 hover:bg-zinc-900 border border-zinc-850 hover:border-rose-950/50 rounded-full transition-all duration-300 active:scale-[0.97] cursor-pointer"
-              >
-                Keluar
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => openModal('login')}
-                className="h-10 px-5 text-[13px] font-medium text-zinc-300 hover:text-white bg-transparent border border-zinc-800/80 hover:border-zinc-700 rounded-full transition-all duration-300 active:scale-[0.97] cursor-pointer"
-              >
-                Masuk
-              </button>
-            </>
-          )}
-          
-          <Button
-            onClick={handleStartChat}
-            className="h-10 px-6 text-[13px] font-medium text-white bg-indigo-650 hover:bg-indigo-600 border border-indigo-550/20 rounded-full transition-all duration-200 active:scale-[0.97] cursor-pointer"
-          >
-            Mulai Percakapan
-          </Button>
-        </div>
-
-        {/* Mobile menu button (aligned to right on mobile) */}
-        <div className="flex md:hidden items-center justify-end flex-1">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-zinc-200 hover:text-white transition-colors cursor-pointer"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-      </motion.header>
-
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed top-[96px] left-4 right-4 z-40 max-w-5xl mx-auto bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 md:hidden overflow-hidden flex flex-col px-6 py-6 space-y-6 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.7)]"
-          >
-            {/* Links */}
-            <div className="flex flex-col space-y-4">
-              {['Layanan', 'Verifikasi', 'Semua Aduan', 'Tentang'].map((item) => (
-                <button
-                  key={item}
-                  className="text-left text-[15px] font-medium text-zinc-300 hover:text-white transition-colors py-1 cursor-pointer"
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    if (item === 'Verifikasi') {
-                      document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })
-                    } else if (item === 'Tentang') {
-                      navigate('/about')
-                    } else if (item === 'Layanan') {
-                      document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
-                    } else if (item === 'Semua Aduan') {
-                      navigate('/all-reports')
-                    }
-                  }}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-
-            <div className="h-px bg-zinc-850 w-full" />
-
-            {/* Auth Actions */}
-            <div className="flex flex-col gap-3">
-              {isAuthenticated && user ? (
-                <>
-                  <div className="flex items-center gap-3 pb-2">
-                    <div className="h-9 w-9 rounded-full bg-zinc-850 border border-zinc-700 flex items-center justify-center font-bold text-zinc-200">
-                      {(user.nama_panggilan || user.nama_lengkap)[0]?.toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-bold text-zinc-200">{user.nama_lengkap}</div>
-                      <div className="text-[10px] font-mono text-zinc-500 uppercase">[{user.role}]</div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      navigate('/profile')
-                    }}
-                    className="w-full h-10 border border-zinc-850 hover:bg-zinc-900 text-zinc-200 font-medium rounded-lg text-sm transition-colors cursor-pointer"
-                  >
-                    Profil Saya
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      logout()
-                      toast({ title: 'Sesi Berakhir', description: 'Anda telah berhasil keluar.', type: 'info' })
-                    }}
-                    className="w-full h-10 border border-zinc-850 bg-zinc-900/40 hover:bg-zinc-900 text-rose-400 hover:text-rose-350 font-medium rounded-lg text-sm transition-colors cursor-pointer"
-                  >
-                    Keluar
-                  </button>
-                </>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      openModal('login')
-                    }}
-                    className="w-full h-10 border border-zinc-850 hover:bg-zinc-900 text-zinc-250 font-medium rounded-lg text-sm transition-colors cursor-pointer"
-                  >
-                    Masuk
-                  </button>
-                </div>
-              )}
-
-              <Button
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  handleStartChat()
-                }}
-                className="w-full h-10 bg-white hover:bg-zinc-100 text-zinc-950 font-semibold rounded-lg text-sm transition-all active:scale-[0.98] mt-2 cursor-pointer shadow-lg"
-              >
-                Mulai Percakapan
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Navbar variant="floating" onCtaClick={handleStartChat} />
 
       {/* ══ MAIN ═════════════════════════════════════════════════════════════ */}
       <main className="relative z-10 flex-1">
@@ -688,7 +494,7 @@ export function HomePage() {
             playsInline
             preload="none"
             className="absolute inset-0 w-full h-full object-cover"
-            src="/assets/logo/hf_20260514_102933_4e8f73b5-775a-4179-b2fb-472f59063dcd (1).mp4"
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260508_064209_0cb7d815-ff61-4caa-a6d5-bbff145ab272.mp4"
           />
 
           {/* Elegant movie-like dark overlay for high readability */}
