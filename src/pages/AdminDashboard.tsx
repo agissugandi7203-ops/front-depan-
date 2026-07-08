@@ -1706,7 +1706,7 @@ export function AdminDashboard() {
     { id: 'summaries',   label: 'Ringkasan Dok',    icon: FileSpreadsheet,   desc: 'Regulation Summaries',    roles: ['superadmin'] },
     { id: 'histories',   label: 'Riwayat Chat',     icon: MessageSquare,     desc: 'Chat History Logs',       roles: ['superadmin'] },
     { id: 'staff',       label: 'Kelola Staf',      icon: Users,             desc: 'Staff Management',        roles: ['superadmin'] },
-    { id: 'hoaks',       label: 'Database Hoaks',   icon: AlertTriangle,     desc: 'WhatsApp Hoax DB',        roles: ['superadmin'] },
+    { id: 'hoaks',       label: 'Database Hoaks',   icon: AlertTriangle,     desc: 'WhatsApp Hoax DB',        roles: ['admin','superadmin'] },
   ] as const
 
   const navItems = navItemsAll.filter(item =>

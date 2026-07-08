@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
@@ -24,10 +24,26 @@ const NAV_ITEMS = [
 
 export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
-  const { user, logout, isAuthenticated } = useAuthStore()
+  const { logout, isAuthenticated } = useAuthStore()
   const { openModal } = useAuthModalStore()
   const { toast } = useToast()
+
+  // Track window scroll to toggle between transparent wide layout and floating pill layout
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    // Run once on mount to handle initial scroll position
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleNavClick = (item: typeof NAV_ITEMS[number]) => {
     setMobileMenuOpen(false)
@@ -55,7 +71,14 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 h-[60px] border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md px-6 md:px-10 flex items-center justify-between">
+      <header
+        className={cn(
+          "fixed left-0 right-0 z-50 flex items-center justify-between transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          isScrolled
+            ? "top-4 max-w-5xl mx-4 md:mx-auto h-[54px] rounded-full border border-zinc-800/80 bg-zinc-950/80 backdrop-blur-xl shadow-[0_20px_45px_rgba(0,0,0,0.6)] px-6 md:px-8"
+            : "top-0 max-w-full h-[68px] border-b border-transparent bg-transparent px-6 md:px-10"
+        )}
+      >
         {/* Logo */}
         <div
           onClick={() => navigate('/')}
@@ -71,38 +94,38 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
             <button
               key={item.label}
               className={cn(
-                "text-[13px] transition-colors tracking-[-0.01em] cursor-pointer",
+                "text-[13px] transition-all duration-300 tracking-[-0.01em] cursor-pointer relative py-1.5",
                 activeItem === item.label
                   ? "text-zinc-100 font-semibold"
                   : "text-zinc-400 hover:text-zinc-100"
               )}
               onClick={() => handleNavClick(item)}
             >
-              {item.label}
+              <span>{item.label}</span>
+              {activeItem === item.label && (
+                <motion.span
+                  layoutId="activeNavLine"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 rounded-full"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
             </button>
           ))}
         </nav>
 
-        {/* Desktop Right Actions */}
+        {/* Desktop Right Actions (No username or role display) */}
         <div className="hidden md:flex items-center gap-3">
-          {isAuthenticated && user ? (
-            <div className="flex items-center gap-3">
-              <div
-                onClick={() => navigate('/profile')}
-                className="hidden md:flex flex-col items-end text-right select-none cursor-pointer hover:opacity-80 transition"
-              >
-                <span className="text-[12px] font-bold tracking-tight text-zinc-100">{user.nama_panggilan || user.nama_lengkap}</span>
-                <span className="text-[9px] uppercase font-mono text-zinc-500 font-semibold tracking-wider leading-none mt-0.5">[{user.role}]</span>
-              </div>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('/profile')}
-                className="h-8 px-3 text-[11px] font-bold rounded-lg tracking-wide border bg-zinc-800 hover:bg-zinc-750 text-zinc-200 border-zinc-700 transition-all duration-300 active:scale-[0.97] cursor-pointer"
+                className="h-8 px-4 text-[11px] font-bold rounded-full tracking-wide border bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border-zinc-800 transition-all duration-300 active:scale-[0.97] cursor-pointer"
               >
                 Profil
               </button>
               <button
                 onClick={handleLogout}
-                className="h-8 px-3 text-[11px] font-bold rounded-lg tracking-wide border bg-zinc-900 hover:bg-zinc-850 text-zinc-200 border-zinc-800 transition-all duration-300 active:scale-[0.97] cursor-pointer"
+                className="h-8 px-4 text-[11px] font-bold rounded-full tracking-wide border bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-rose-400 border-zinc-850 hover:border-rose-950/40 transition-all duration-300 active:scale-[0.97] cursor-pointer"
               >
                 Keluar
               </button>
@@ -110,14 +133,14 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
           ) : (
             <button
               onClick={() => openModal('login')}
-              className="h-8 px-4 text-[12px] font-medium rounded-full border border-zinc-800/80 hover:border-zinc-700 bg-transparent text-zinc-300 hover:text-white transition-all duration-300 active:scale-[0.97] cursor-pointer"
+              className="h-8 px-4 text-[12px] font-medium rounded-full border border-zinc-800/80 hover:border-zinc-750 bg-transparent text-zinc-300 hover:text-white transition-all duration-300 active:scale-[0.97] cursor-pointer"
             >
               Masuk
             </button>
           )}
           <button
             onClick={handleCta}
-            className="h-8 px-4 text-[12px] font-medium rounded-md tracking-[-0.01em] transition-all duration-300 active:scale-[0.97] cursor-pointer bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:text-white"
+            className="h-8 px-4 text-[12px] font-medium rounded-full tracking-[-0.01em] transition-all duration-300 active:scale-[0.97] cursor-pointer bg-zinc-100 hover:bg-white text-zinc-950 border border-transparent shadow hover:shadow-indigo-950/20"
           >
             Mulai Percakapan
           </button>
@@ -142,7 +165,10 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="fixed top-[60px] left-0 right-0 z-40 bg-zinc-950/98 backdrop-blur-xl border-b border-zinc-800 md:hidden flex flex-col px-6 py-5 space-y-5"
+            className={cn(
+              "fixed left-0 right-0 z-40 bg-zinc-950/98 backdrop-blur-xl border-b border-zinc-900 md:hidden flex flex-col px-6 py-5 space-y-5",
+              isScrolled ? "top-[78px] mx-4 rounded-2xl border" : "top-[68px] w-full"
+            )}
           >
             <div className="flex flex-col space-y-3">
               {NAV_ITEMS.map((item) => (
@@ -159,25 +185,16 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
               ))}
             </div>
 
-            <div className="h-px bg-zinc-800" />
+            <div className="h-px bg-zinc-900" />
 
             <div className="flex flex-col gap-2.5">
-              {isAuthenticated && user ? (
+              {isAuthenticated ? (
                 <>
-                  <div className="flex items-center gap-3 pb-1">
-                    <div className="h-8 w-8 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center font-bold text-zinc-200 text-sm">
-                      {(user.nama_panggilan || user.nama_lengkap)[0]?.toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-bold text-zinc-200">{user.nama_panggilan || user.nama_lengkap}</div>
-                      <div className="text-[10px] font-mono text-zinc-500 uppercase">[{user.role}]</div>
-                    </div>
-                  </div>
                   <button
                     onClick={() => { setMobileMenuOpen(false); navigate('/profile') }}
                     className="w-full h-9 border border-zinc-800 hover:bg-zinc-900 text-zinc-200 font-medium rounded-lg text-sm transition-colors cursor-pointer"
                   >
-                    Profil
+                    Profil Saya
                   </button>
                   <button
                     onClick={handleLogout}
