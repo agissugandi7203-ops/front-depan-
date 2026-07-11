@@ -199,7 +199,7 @@ export function ChatInterface() {
     const container = scrollContainerRef.current
     if (!container) return
     
-    const threshold = 150
+    const threshold = 15
     const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight <= threshold
     
     setShouldAutoScroll(isAtBottom)
@@ -279,7 +279,9 @@ export function ChatInterface() {
     if (shouldAutoScroll) {
       const container = scrollContainerRef.current
       if (container) {
-        container.scrollTop = container.scrollHeight
+        requestAnimationFrame(() => {
+          container.scrollTop = container.scrollHeight
+        })
       }
     }
   }, [displayedMessages, isLoading, shouldAutoScroll])
@@ -297,6 +299,18 @@ export function ChatInterface() {
 
   // Main sending coordinator
   const handleSendMessage = async (text: string, image?: { base64: string; mimeType: string }) => {
+    // Force auto-scroll back on and perform a smooth scroll animation to the bottom when sending a message
+    setShouldAutoScroll(true)
+    setTimeout(() => {
+      const container = scrollContainerRef.current
+      if (container) {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        })
+      }
+    }, 40)
+
     if (activeReportId) {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         const payload: any = {

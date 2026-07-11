@@ -139,8 +139,8 @@ export const ChatMessage = memo(function ChatMessage({ message, isStreaming, sea
                       <Search className="w-3.5 h-3.5 text-indigo-400" />
                       <span>
                         {searchPhase.phase === 1 
-                          ? 'Menelusuri 15 situs pemeriksa fakta...' 
-                          : 'Menelusuri 65 portal berita & sumber terpercaya...'}
+                          ? `Menelusuri ${searchPhase.count || 15} situs pemeriksa fakta...` 
+                          : `Menelusuri ${searchPhase.count || 40} portal berita & sumber terpercaya...`}
                       </span>
                       <RefreshCw className="w-3 h-3 text-zinc-500 animate-spin" />
                     </div>
