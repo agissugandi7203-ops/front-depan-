@@ -609,9 +609,9 @@ export function HomePage() {
             src="/assets/video/hero_reverse.mp4"
           />
 
-          {/* Thin gradient overlays on bottom and left side of hero section */}
-          <div className="absolute bottom-0 left-0 right-0 h-[80px] bg-gradient-to-t from-[#040404] to-transparent pointer-events-none z-20" />
-          <div className="absolute left-0 top-0 bottom-0 w-[240px] bg-gradient-to-r from-[#040404]/70 to-transparent pointer-events-none z-20" />
+          {/* Premium radial gradient focused at the bottom-left corner to match text placement, and thin bottom fade */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,#040404_0%,rgba(4,4,4,0.75)_25%,rgba(4,4,4,0.3)_50%,transparent_80%)] pointer-events-none z-20" />
+          <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-[#040404] to-transparent pointer-events-none z-20" />
 
           {/* Hero content — bottom-left aligned */}
           <div className="relative z-10 flex flex-col min-h-[92vh]">
@@ -666,7 +666,7 @@ export function HomePage() {
         <div className="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
 
         {/* ── FEATURES ────────────────────────────────────────────────────── */}
-        <section id="features-section" className="w-full pt-28 pb-28">
+        <section id="features-section" className="w-full pt-28 pb-0">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -685,10 +685,10 @@ export function HomePage() {
                 KOMUNITAS mengintegrasikan teknologi kecerdasan buatan untuk merampingkan alur birokrasi, memverifikasi fakta informasi secara real-time, dan mempercepat respons terhadap pengaduan warga.
               </p>
             </motion.div>
+          </div>
 
-            <div className="relative z-10 w-full mt-6">
-              <StickyScroll content={stickyContent} />
-            </div>
+          <div className="relative z-10 w-full mt-6">
+            <StickyScroll content={stickyContent} />
           </div>
         </section>
 
