@@ -6,7 +6,6 @@ export interface Message {
   isError?: boolean
   image?: string
   searchResults?: SearchResultItem[]
-  senderName?: string
 }
 
 export interface ChatSession {

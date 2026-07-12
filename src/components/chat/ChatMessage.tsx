@@ -104,14 +104,6 @@ export const ChatMessage = memo(function ChatMessage({ message, isStreaming, sea
 
       {/* Message body — AI response fills full width like ChatGPT/Claude */}
       <div className={cn('flex flex-col gap-1.5 min-w-0', isUser ? 'items-end max-w-[78%]' : 'items-start w-full')}>
-        {message.senderName && (
-          <span className={cn(
-            "text-[10px] font-semibold select-none px-1.5",
-            isUser ? "text-zinc-550" : "text-indigo-400"
-          )}>
-            {message.senderName}
-          </span>
-        )}
 
         {/* Bubble */}
         <div className={cn(
@@ -147,8 +139,8 @@ export const ChatMessage = memo(function ChatMessage({ message, isStreaming, sea
                       <Search className="w-3.5 h-3.5 text-indigo-400" />
                       <span>
                         {searchPhase.phase === 1 
-                          ? `Menelusuri ${searchPhase.count || 15} situs pemeriksa fakta...` 
-                          : `Menelusuri ${searchPhase.count || 40} portal berita & sumber terpercaya...`}
+                          ? 'Menelusuri 15 situs pemeriksa fakta...' 
+                          : 'Menelusuri 65 portal berita & sumber terpercaya...'}
                       </span>
                       <RefreshCw className="w-3 h-3 text-zinc-500 animate-spin" />
                     </div>

@@ -44,19 +44,11 @@ export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, active
   const filteredSessions = sessions.filter(s => s.userId === user?.id || (!s.userId && !user))
   const [reports, setReports] = useState<CitizenReport[]>([])
   const [loadingReports, setLoadingReports] = useState(false)
-  const [activeTab, setActiveTab] = useState<'ai' | 'report'>('ai')
 
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const [activeMenuSessionId, setActiveMenuSessionId] = useState<string | null>(null)
   const [deleteConfirmSessionId, setDeleteConfirmSessionId] = useState<string | null>(null)
-
-  // Auto-navigate to report tab if selected
-  useEffect(() => {
-    if (activeReportId) {
-      setActiveTab('report')
-    }
-  }, [activeReportId])
 
   // Fetch citizen reports if authenticated or activeReportId changes
   useEffect(() => {
@@ -76,29 +68,13 @@ export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, active
           
           // De-duplicate based on report ID
           const uniqueReports = Array.from(new Map(allReports.map(item => [item.id, item])).values())
-          
-          // STRICT CLIENT-SIDE SESSION FILTERING: Ensure reports only match logged-in user credentials
-          const userReports = uniqueReports.filter(report => {
-            const contact = report.reporter_contact?.trim().toLowerCase() || ''
-            const userEmail = user.email?.trim().toLowerCase() || ''
-            const userPhone = user.nomor_telepon?.trim() || ''
-            return (userEmail && contact === userEmail) || (userPhone && contact === userPhone)
-          })
-          
-          setReports(userReports)
+          setReports(uniqueReports)
         } else {
           const contact = localStorage.getItem('komunitas_guest_contact') || ''
           if (contact) {
             const res = await citizenService.getReports(contact)
             if (res && res.reports) {
-              // STRICT CLIENT-SIDE SESSION FILTERING: Ensure reports only match guest contact
-              const guestReports = res.reports.filter(report => {
-                const rContact = report.reporter_contact?.trim().toLowerCase() || ''
-                return rContact === contact.trim().toLowerCase()
-              })
-              setReports(guestReports)
-            } else {
-              setReports([])
+              setReports(res.reports)
             }
           } else {
             setReports([])
@@ -160,51 +136,11 @@ export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, active
         )}
       </div>
 
-      {/* ── Segmented Control Pills ─── */}
-      <div className="px-3 py-1.5 shrink-0 border-b border-zinc-800/60 bg-zinc-900/40">
-        <div className="flex bg-zinc-950 p-0.5 rounded-lg border border-zinc-850">
-          <button
-            onClick={() => setActiveTab('ai')}
-            className={cn(
-              "flex-1 py-1 text-[11px] font-semibold tracking-wide rounded-md transition-all cursor-pointer flex items-center justify-center gap-1.5",
-              activeTab === 'ai'
-                ? "bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/50"
-                : "text-zinc-500 hover:text-zinc-350"
-            )}
-          >
-            <MessageSquare className="w-3 h-3" />
-            Asisten AI
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('report')
-              // Automatically activate the last viewed report if any exists
-              if (reports.length > 0 && !activeReportId && onSelectReport) {
-                onSelectReport(reports[0].id)
-              }
-            }}
-            className={cn(
-              "flex-1 py-1 text-[11px] font-semibold tracking-wide rounded-md transition-all cursor-pointer flex items-center justify-center gap-1.5 relative",
-              activeTab === 'report'
-                ? "bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/50"
-                : "text-zinc-500 hover:text-zinc-350"
-            )}
-          >
-            <AlertTriangle className="w-3 h-3 text-rose-400" />
-            Laporan Saya
-            {reports.length > 0 && (
-              <span className="absolute right-2 top-1.5 w-1.5 h-1.5 rounded-full bg-rose-500" />
-            )}
-          </button>
-        </div>
-      </div>
-
       {/* ── History list ─── */}
       <ScrollArea className="flex-1 px-2 py-3">
-        
-        {/* TAB 1: REPORT MODE */}
-        {activeTab === 'report' && (
-          <div className="space-y-2">
+        {/* SECTION 1: ADUAN SAYA (REAL-TIME CHAT WITH PETUGAS) */}
+        {(isAuthenticated || reports.length > 0) && (
+          <div className="mb-5 space-y-2">
             <div className="px-3 py-1 flex items-center justify-between">
               <span className="text-[10px] uppercase tracking-wider font-semibold font-mono text-zinc-500">Aduan Saya (Real-time)</span>
               {loadingReports && <Loader2 className="w-3 h-3 animate-spin text-zinc-500" />}
@@ -213,9 +149,8 @@ export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, active
             {loadingReports && reports.length === 0 ? (
               <div className="text-center py-4 text-[11px] text-zinc-650">Memuat aduan...</div>
             ) : reports.length === 0 ? (
-              <div className="px-3 py-4 text-center text-[11px] text-zinc-500 leading-relaxed space-y-1">
-                <AlertTriangle className="w-5 h-5 mx-auto text-zinc-700" />
-                <p>Belum ada pengaduan aktif</p>
+              <div className="px-3 py-2 text-[11px] text-zinc-650 italic leading-relaxed">
+                Belum ada aduan masuk. Gunakan tombol "Lapor Warga" di atas untuk melaporkan kasus.
               </div>
             ) : (
               <div className="space-y-1">
@@ -253,21 +188,21 @@ export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, active
                         </span>
                       </div>
                       <p className="text-[11px] text-zinc-500 truncate w-full min-w-0">{report.description}</p>
-                      <span className="text-[9px] text-zinc-650 font-mono mt-0.5">{formatDate(report.created_at)}</span>
+                      <span className="text-[9px] text-zinc-600 font-mono mt-0.5">{formatDate(report.created_at)}</span>
                     </div>
                   )
                 })}
               </div>
             )}
+            <hr className="border-zinc-800/80 my-3 mx-1" />
           </div>
         )}
 
-        {/* TAB 2: AI CONSULTATION MODE */}
-        {activeTab === 'ai' && (
-          <div className="space-y-1.5">
-            <div className="px-3 py-1 flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-wider font-semibold font-mono text-zinc-500">Konsultasi AI</span>
-            </div>
+        {/* SECTION 2: RIWAYAT CHAT AI */}
+        <div className="space-y-1.5">
+          <div className="px-3 py-1 flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-wider font-semibold font-mono text-zinc-500">Konsultasi AI</span>
+          </div>
 
           {filteredSessions.length === 0 ? (
             <div className="text-center py-8 px-4 space-y-2">
@@ -401,7 +336,6 @@ export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, active
             </div>
           )}
         </div>
-        )}
       </ScrollArea>
 
       {/* Delete Confirmation Dialog */}

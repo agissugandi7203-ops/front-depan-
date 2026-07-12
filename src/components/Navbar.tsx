@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
@@ -18,13 +18,9 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
-  const location = useLocation()
   const { logout, isAuthenticated } = useAuthStore()
   const { openModal } = useAuthModalStore()
   const { toast } = useToast()
-
-  const isDarkPage = location.pathname !== '/'
-  const forceDarkTheme = isScrolled || isDarkPage
 
   // Navigation item definitions — dynamically calculated based on auth status
   const navItems = [
@@ -74,11 +70,11 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
       <header
         className={cn(
           'fixed top-0 left-0 right-0 z-50 w-full transition-[background-color,border-color,box-shadow] duration-300',
-          forceDarkTheme
+          isScrolled
             ? 'bg-zinc-950/85 backdrop-blur-xl border-b border-zinc-900 shadow-lg'
             : 'bg-transparent border-b border-transparent'
         )}
-        style={forceDarkTheme ? { willChange: 'transform' } : undefined}
+        style={isScrolled ? { willChange: 'transform' } : undefined}
       >
         <div className="flex items-center justify-between h-16 px-5 md:px-10">
 
@@ -94,7 +90,7 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
             />
             <span className={cn(
               "font-semibold text-[15px] tracking-[-0.02em] transition-colors duration-300",
-              forceDarkTheme ? "text-zinc-100" : "text-zinc-950"
+              isScrolled ? "text-zinc-100" : "text-zinc-950"
             )}>
               KOMUNITAS
             </span>
@@ -108,8 +104,8 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
                 className={cn(
                   'text-[13px] transition-all duration-300 tracking-[-0.01em] cursor-pointer relative py-1.5',
                   activeItem === item.label
-                    ? (forceDarkTheme ? 'text-zinc-100 font-semibold' : 'text-zinc-950 font-bold')
-                    : (forceDarkTheme ? 'text-zinc-400 hover:text-zinc-100' : 'text-zinc-700 hover:text-zinc-950')
+                    ? (isScrolled ? 'text-zinc-100 font-semibold' : 'text-zinc-950 font-bold')
+                    : (isScrolled ? 'text-zinc-400 hover:text-zinc-100' : 'text-zinc-700 hover:text-zinc-950')
                 )}
                 onClick={() => handleNavClick(item)}
               >
@@ -119,7 +115,7 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
                     layoutId="activeNavLine"
                     className={cn(
                       "absolute bottom-0 left-0 right-0 h-0.5 rounded-full",
-                      forceDarkTheme ? "bg-[#DEDBC8]" : "bg-zinc-950"
+                      isScrolled ? "bg-[#DEDBC8]" : "bg-zinc-950"
                     )}
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   />
@@ -135,7 +131,7 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
                 onClick={handleLogout}
                 className={cn(
                   "h-8 px-4 text-[11px] font-bold rounded-full tracking-wide border transition-all duration-300 active:scale-[0.97] cursor-pointer",
-                  forceDarkTheme 
+                  isScrolled 
                     ? "bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-rose-400 border-zinc-800 hover:border-rose-950/40" 
                     : "bg-white hover:bg-zinc-50 text-zinc-700 hover:text-rose-600 border-zinc-300 hover:border-rose-200"
                 )}
@@ -147,7 +143,7 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
                 onClick={() => openModal('login')}
                 className={cn(
                   "h-8 px-4 text-[12px] font-medium rounded-full border transition-all duration-300 active:scale-[0.97] cursor-pointer",
-                  forceDarkTheme
+                  isScrolled
                     ? "border-zinc-800/80 hover:border-zinc-700 bg-transparent text-zinc-300 hover:text-white"
                     : "border-zinc-300 hover:border-zinc-400 bg-transparent text-zinc-800 hover:text-zinc-950"
                 )}
@@ -159,7 +155,7 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
               onClick={handleCta}
               className={cn(
                 "h-8 px-4 text-[12px] font-medium rounded-full tracking-[-0.01em] transition-all duration-300 active:scale-[0.97] cursor-pointer shadow hover:shadow-md",
-                forceDarkTheme
+                isScrolled
                   ? "bg-zinc-100 hover:bg-white text-zinc-950"
                   : "bg-zinc-950 hover:bg-black text-white"
               )}
@@ -175,7 +171,7 @@ export function Navbar({ activeItem, onCtaClick }: NavbarProps) {
               aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'}
               className={cn(
                 "p-2 transition-colors cursor-pointer rounded-md",
-                forceDarkTheme 
+                isScrolled 
                   ? "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50" 
                   : "text-zinc-700 hover:text-zinc-950 hover:bg-zinc-100/50"
               )}

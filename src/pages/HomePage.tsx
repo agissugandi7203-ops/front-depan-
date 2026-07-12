@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import {
-  Bot, Shield, FileText, Users, MapPin,
+  Bot, Shield, FileText, Users,
   ArrowRight, Loader2, Sparkles,
   RefreshCw, CheckCircle2,
   AlertOctagon, HelpCircle,
@@ -17,7 +17,6 @@ import { useAuthStore } from '@/store/authStore'
 import { useAuthModalStore } from '@/store/authModalStore'
 import Footer4Col from '@/components/ui/footer-column'
 import { Navbar } from '@/components/Navbar'
-import { StickyScroll } from '@/components/ui/sticky-scroll-reveal'
 
 // MermaidDiagram lazy-loaded — Mermaid library is ~2MB, only load when needed
 const MermaidDiagram = lazy(() =>
@@ -36,102 +35,28 @@ const stagger = {
 }
 
 // ─── Feature card data ────────────────────────────────────────────────────────
-const serviceBlocks = [
+const features = [
   {
-    type: 'image',
     icon: Bot,
-    title: 'Visualisasi Asisten AI',
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
+    title: 'Asisten AI 24/7',
+    description: 'Pendampingan layanan publik dan administrasi pemerintahan kapan saja, tanpa antre.',
   },
   {
-    type: 'text',
-    title: 'Asisten AI Pelayanan',
-    description: 'Pendampingan pelayanan publik berbasis AI untuk memandu warga dalam pengurusan administrasi, pemahaman regulasi, dan pencarian solusi publik secara cerdas.',
-  },
-  {
-    type: 'image',
     icon: Shield,
-    title: 'Visualisasi Cek Fakta',
-    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80'
+    title: 'Verifikasi Berita',
+    description: 'Cek silang klaim dan pesan berantai menggunakan basis data rujukan resmi terpercaya.',
   },
   {
-    type: 'text',
-    title: 'Klarifikasi & Cek Fakta',
-    description: 'Verifikasi kebenaran informasi dan klarifikasi berita palsu (hoaks) secara real-time yang didukung oleh penelusuran referensi resmi.',
+    icon: FileText,
+    title: 'Ringkasan Dokumen',
+    description: 'Ubah teks birokrasi yang panjang menjadi instruksi konkret yang siap dieksekusi.',
   },
   {
-    type: 'image',
-    icon: MapPin,
-    title: 'Visualisasi Aduan Spasial',
-    image: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    type: 'text',
-    title: 'Aduan Spasial Real-Time',
-    description: 'Laporkan keluhan fasilitas umum secara geografis (geo-tagged). Terhubung langsung dengan petugas via obrolan real-time untuk penanganan yang transparan.',
-  }
-]
-
-// ─── Sticky scroll layout data ────────────────────────────────────────────────
-const stickyContent = [
-  {
-    title: "Asisten AI Pelayanan Publik",
-    description: "Pendampingan cerdas 24/7 untuk membantu Anda memahami prosedur birokrasi, menjelaskan regulasi administratif yang rumit, dan melengkapi persyaratan dokumen publik dengan bahasa yang sederhana.",
-    content: (
-      <div className="relative h-full w-full">
-        <img
-          src="https://i.pinimg.com/736x/fd/11/2b/fd112b2364a7e45cfc19951201516b15.jpg"
-          alt="Asisten AI"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-indigo-950/20" />
-      </div>
-    ),
-  },
-  {
-    title: "Klarifikasi Hoaks & Verifikasi Berita",
-    description: "Uji kebenaran klaim berita, artikel, dan pesan berantai secara instan. Sistem kami menelusuri sumber referensi pemerintah dan portal berita terpercaya untuk menyaring informasi palsu secara transparan.",
-    content: (
-      <div className="relative h-full w-full">
-        <img
-          src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=85"
-          alt="Verifikasi Berita"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-rose-950/20" />
-      </div>
-    ),
-  },
-  {
-    title: "Ringkasan Dokumen Birokrasi",
-    description: "Ubah dokumen peraturan, syarat administrasi, dan naskah kebijakan yang panjang menjadi poin-poin instruksi konkret yang mudah dipahami dan siap dieksekusi oleh siapapun.",
-    content: (
-      <div className="relative h-full w-full">
-        <img
-          src="https://images.unsplash.com/photo-1568219557405-376e23e4f7cf?auto=format&fit=crop&w=900&q=85"
-          alt="Ringkasan Dokumen"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-sky-950/20" />
-      </div>
-    ),
-  },
-  {
-    title: "Pengaduan Fasilitas Berbasis Lokasi",
-    description: "Laporkan masalah infrastruktur, jalan rusak, atau fasilitas umum yang terbengkalai secara geo-tagged langsung dari browser Anda. Laporan terhubung dengan petugas terkait untuk penanganan yang transparan.",
-    content: (
-      <div className="relative h-full w-full">
-        <img
-          src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=900&q=85"
-          alt="Pengaduan Spasial"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-emerald-950/20" />
-      </div>
-    ),
+    icon: Users,
+    title: 'Inklusif & Terbuka',
+    description: 'Dirancang untuk seluruh kalangan warga — tanpa hambatan teknis atau bahasa.',
   },
 ]
-
 
 
 // ─── Inline markdown renderer for summary ─────────────────────────────────────
@@ -313,12 +238,6 @@ const renderSummaryContent = (text: string) => {
 }
 
 export function HomePage() {
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    setIsMobile(window.matchMedia('(pointer: coarse)').matches)
-  }, [])
-
   const [claim, setClaim]           = useState('')
   const [docText, setDocText]       = useState('')
   const [claimLoading, setClaimLoading] = useState(false)
@@ -351,46 +270,60 @@ export function HomePage() {
   }, [isAuthenticated, user, checkMe])
 
 
-  const videoForwardRef = useRef<HTMLVideoElement>(null)
-  const videoReverseRef = useRef<HTMLVideoElement>(null)
-  const [isPlayingForward, setIsPlayingForward] = useState(true)
+  const heroVideoRef = useRef<HTMLVideoElement>(null)
   
   useEffect(() => {
-    const videoF = videoForwardRef.current
-    const videoR = videoReverseRef.current
-    if (!videoF || !videoR) return
+    const video = heroVideoRef.current
+    if (!video) return
 
-    videoF.muted = true;
-    videoR.muted = true;
+    let direction: 'forward' | 'backward' = 'forward'
+    let timeoutId: any
 
-    const handleForwardEnded = () => {
-      setIsPlayingForward(false);
-      videoF.pause(); // Release decoder resources for forward video
-      videoR.currentTime = 0;
-      videoR.muted = true;
-      videoR.play().catch(() => {});
-    };
+    const stepBackward = () => {
+      if (direction !== 'backward') return
+      if (video.currentTime <= 0.08) {
+        // Reset to start and play forward
+        video.currentTime = 0
+        direction = 'forward'
+        video.play().catch(() => {})
+      } else {
+        // Step backward by 0.06s
+        video.currentTime = Math.max(0, video.currentTime - 0.06)
+      }
+    }
 
-    const handleReverseEnded = () => {
-      setIsPlayingForward(true);
-      videoR.pause(); // Release decoder resources for reverse video
-      videoF.currentTime = 0;
-      videoF.muted = true;
-      videoF.play().catch(() => {});
-    };
+    const handleSeeked = () => {
+      if (direction === 'backward') {
+        // Wait 40ms to avoid overloading the decoder
+        timeoutId = setTimeout(stepBackward, 40)
+      }
+    }
 
-    videoF.addEventListener('ended', handleForwardEnded);
-    videoR.addEventListener('ended', handleReverseEnded);
+    const handleEnded = () => {
+      direction = 'backward'
+      video.pause()
+      stepBackward()
+    }
+
+    const handlePlay = () => {
+      if (direction === 'forward') {
+        clearTimeout(timeoutId)
+      }
+    }
+
+    video.addEventListener('ended', handleEnded)
+    video.addEventListener('seeked', handleSeeked)
+    video.addEventListener('play', handlePlay)
 
     // auto start
-    videoF.play().catch(() => {});
+    video.play().catch(() => {})
 
     return () => {
-      videoF.removeEventListener('ended', handleForwardEnded);
-      videoR.removeEventListener('ended', handleReverseEnded);
-      videoF.pause();
-      videoR.pause();
-    };
+      clearTimeout(timeoutId)
+      video.removeEventListener('ended', handleEnded)
+      video.removeEventListener('seeked', handleSeeked)
+      video.removeEventListener('play', handlePlay)
+    }
   }, [])
 
   const handleStartChat = useCallback(() => {
@@ -604,7 +537,7 @@ export function HomePage() {
   const ctaY = useTransform(heroProgress, [0, 1], [0, -40])
 
   return (
-    <div className="min-h-screen bg-dot-pattern text-zinc-100 flex flex-col relative">
+    <div className="min-h-screen bg-dot-pattern text-zinc-100 flex flex-col relative overflow-x-hidden">
       {/* ── Ambient radial glow — does not distract ── */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-zinc-500/[0.02] rounded-full blur-[120px]" />
@@ -620,27 +553,13 @@ export function HomePage() {
         {/* ── HERO — Fullscreen ping-pong video background, centered content ─── */}
         <section className="relative min-h-screen overflow-hidden bg-[#040404]">
 
-          {/* Background Video A (Forward) */}
+          {/* Background Video (Ping-Pong controlled via refs) */}
           <video
-            ref={videoForwardRef}
+            ref={heroVideoRef}
             playsInline
             muted
-            className={cn(
-              "absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-300 transform-gpu will-change-opacity",
-              isPlayingForward ? "opacity-80" : "opacity-0"
-            )}
-            src="/assets/video/hero_forward.mp4"
-          />
-          {/* Background Video B (Reverse) */}
-          <video
-            ref={videoReverseRef}
-            playsInline
-            muted
-            className={cn(
-              "absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-300 transform-gpu will-change-opacity",
-              !isPlayingForward ? "opacity-80" : "opacity-0"
-            )}
-            src="/assets/video/hero_reverse.mp4"
+            className="absolute inset-0 w-full h-full object-cover scale-105 opacity-80"
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260508_215831_c6a8989c-d716-4d8d-8745-e972a2eec711.mp4"
           />
 
           {/* Subtle gradient overlay for text readability & smooth transition into dark background */}
@@ -700,30 +619,51 @@ export function HomePage() {
         <div className="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
 
         {/* ── FEATURES ────────────────────────────────────────────────────── */}
-        <section id="features-section" className="w-full">
-          {/* Section heading — constrained width */}
-          <div className="max-w-5xl mx-auto px-6 md:px-10 pt-28 pb-14">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.5 }}
-              className="flex flex-col items-center text-center space-y-3 relative z-10"
-            >
+        <section id="features-section" className="max-w-5xl mx-auto px-6 md:px-10 pt-28 pb-28">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+            
+            {/* Left Sticky Column */}
+            <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-24 h-fit">
               <span className="text-[11px] font-mono font-semibold tracking-widest text-indigo-400 uppercase">
                 Sistem Intelijen Publik
               </span>
-              <h2 className="text-[26px] md:text-[32px] font-semibold text-zinc-100 tracking-[-0.025em]">
+              <h2 className="text-[28px] sm:text-[32px] font-semibold text-zinc-150 tracking-tight leading-tight">
                 Layanan Cerdas Berorientasi Warga
               </h2>
-              <p className="text-[13.5px] text-zinc-500 font-normal max-w-xl leading-relaxed pt-1">
-                KOMUNITAS mengintegrasikan teknologi kecerdasan buatan untuk merampingkan alur birokrasi, memverifikasi fakta secara real-time, dan mempercepat respons pengaduan warga.
+              <p className="text-[13.5px] text-zinc-450 leading-relaxed font-light">
+                KOMUNITAS mengintegrasikan teknologi kecerdasan buatan untuk merampingkan alur birokrasi, menguji fakta berita secara real-time, dan mempercepat respons terhadap pengaduan warga.
               </p>
-            </motion.div>
-          </div>
+            </div>
 
-          {/* StickyScroll — full-width, edge to edge */}
-          <StickyScroll content={stickyContent} />
+            {/* Right Asymmetric Cards Column */}
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {features.map((f, i) => {
+                const Icon = f.icon
+                const isLarge = i === 0 || i === 3
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-40px' }}
+                    transition={{ duration: 0.45, delay: i * 0.08 }}
+                    className={cn(
+                      "group relative rounded-2xl border border-zinc-800/80 bg-zinc-900/20 hover:bg-zinc-900/40 hover:border-zinc-700/60 p-6 flex flex-col justify-between transition-all duration-300 shadow-sm",
+                      isLarge ? "min-h-[220px]" : "min-h-[190px]"
+                    )}
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:border-indigo-500/30 group-hover:bg-indigo-950/15 transition-all duration-300">
+                      <Icon className="w-4 h-4 text-zinc-400 group-hover:text-indigo-400 transition-colors duration-300" />
+                    </div>
+                    <div className="space-y-2 mt-6">
+                      <h3 className="text-[14px] font-medium text-zinc-100 tracking-[-0.01em]">{f.title}</h3>
+                      <p className="text-[12.5px] text-zinc-450 leading-relaxed font-light">{f.description}</p>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
         </section>
 
         {/* ── INTERACTIVE TOOLS ───────────────────────────────────────────── */}
@@ -766,9 +706,9 @@ export function HomePage() {
                   <Shield className="w-4 h-4 text-zinc-400" />
                 </div>
                 <div>
-                  <h3 className="text-[14px] font-semibold text-zinc-100 tracking-[-0.02em]">Cek Kebenaran Berita (Anti-Hoaks)</h3>
+                  <h3 className="text-[14px] font-semibold text-zinc-100 tracking-[-0.02em]">Verifikasi Klaim</h3>
                   <p className="text-[12px] text-zinc-500 mt-1 leading-relaxed">
-                    Tempel tulisan atau berita yang Anda ragukan untuk langsung dibuktikan kebenarannya lewat sumber resmi.
+                    Tempel berita atau pesan yang meragukan untuk divalidasi berdasarkan data resmi.
                   </p>
                 </div>
               </div>
@@ -964,9 +904,9 @@ export function HomePage() {
                   <FileText className="w-4 h-4 text-zinc-400" />
                 </div>
                 <div>
-                  <h3 className="text-[14px] font-semibold text-zinc-100 tracking-[-0.02em]">Penyederhana Dokumen & Aturan</h3>
+                  <h3 className="text-[14px] font-semibold text-zinc-100 tracking-[-0.02em]">Ringkasan Dokumen</h3>
                   <p className="text-[12px] text-zinc-500 mt-1 leading-relaxed">
-                    Unggah atau tempel aturan birokrasi yang panjang untuk dijadikan poin-poin penjelasan singkat yang mudah dibaca.
+                    Tempel regulasi atau persyaratan administrasi untuk mendapat intisari yang mudah dipahami.
                   </p>
                 </div>
               </div>

@@ -533,7 +533,7 @@ export const adminService = {
 
 export const citizenService = {
   getReports: async (contact: string, page = 1, limit = 10): Promise<ReportsResponse> => {
-    const response = await api.get<ReportsResponse>(`/api/reports?contact=${encodeURIComponent(contact)}&page=${page}&limit=${limit}&only_mine=true`)
+    const response = await api.get<ReportsResponse>(`/api/reports?contact=${encodeURIComponent(contact)}&page=${page}&limit=${limit}`)
     return response.data
   }
 }
