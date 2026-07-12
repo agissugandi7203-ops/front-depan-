@@ -76,13 +76,29 @@ export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, active
           
           // De-duplicate based on report ID
           const uniqueReports = Array.from(new Map(allReports.map(item => [item.id, item])).values())
-          setReports(uniqueReports)
+          
+          // STRICT CLIENT-SIDE SESSION FILTERING: Ensure reports only match logged-in user credentials
+          const userReports = uniqueReports.filter(report => {
+            const contact = report.reporter_contact?.trim().toLowerCase() || ''
+            const userEmail = user.email?.trim().toLowerCase() || ''
+            const userPhone = user.nomor_telepon?.trim() || ''
+            return (userEmail && contact === userEmail) || (userPhone && contact === userPhone)
+          })
+          
+          setReports(userReports)
         } else {
           const contact = localStorage.getItem('komunitas_guest_contact') || ''
           if (contact) {
             const res = await citizenService.getReports(contact)
             if (res && res.reports) {
-              setReports(res.reports)
+              // STRICT CLIENT-SIDE SESSION FILTERING: Ensure reports only match guest contact
+              const guestReports = res.reports.filter(report => {
+                const rContact = report.reporter_contact?.trim().toLowerCase() || ''
+                return rContact === contact.trim().toLowerCase()
+              })
+              setReports(guestReports)
+            } else {
+              setReports([])
             }
           } else {
             setReports([])

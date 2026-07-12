@@ -51,9 +51,24 @@ export function ChatUser() {
 
         const res = await citizenService.getReports(contact)
         if (res && res.reports) {
-          setReports(res.reports)
-          if (res.reports.length > 0) {
-            setSelectedReportId(res.reports[0].id)
+          // STRICT CLIENT-SIDE SESSION FILTERING: Ensure reports only match logged-in user credentials or active guest contact
+          const filtered = res.reports.filter(report => {
+            const rContact = report.reporter_contact?.trim().toLowerCase() || ''
+            const userEmail = user?.email?.trim().toLowerCase() || ''
+            const userPhone = user?.nomor_telepon?.trim() || ''
+            const guestContact = localStorage.getItem('komunitas_guest_contact')?.trim().toLowerCase() || ''
+            
+            if (user) {
+              return (userEmail && rContact === userEmail) || (userPhone && rContact === userPhone)
+            }
+            return guestContact && rContact === guestContact
+          })
+
+          setReports(filtered)
+          if (filtered.length > 0) {
+            setSelectedReportId(filtered[0].id)
+          } else {
+            setSelectedReportId(null)
           }
         }
       } catch (err: any) {
@@ -69,7 +84,7 @@ export function ChatUser() {
   const selectedReport = reports.find(r => r.id === selectedReportId)
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
+    <div className="flex flex-col fixed inset-0 h-[100dvh] w-full bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
       {/* Top Header */}
       <header className="flex h-14 items-center justify-between px-6 border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-3">

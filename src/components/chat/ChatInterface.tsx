@@ -335,7 +335,7 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="flex h-screen bg-zinc-950 text-zinc-100 overflow-hidden relative" data-lenis-prevent>
+    <div className="flex fixed inset-0 h-[100dvh] w-full bg-zinc-950 text-zinc-100 overflow-hidden" data-lenis-prevent>
 
       {/* ── Desktop Sidebar ────────────────────────────────────────────────── */}
       <motion.div
