@@ -254,7 +254,10 @@ export function CitizenReportModal({ isOpen, onClose, onSuccess }: CitizenReport
         sessionId: currentSessionId || undefined,
         latitude: gpsCoords.lat,
         longitude: gpsCoords.lng,
-        image: imageBase64 || undefined
+        image: imageBase64 || undefined,
+        province: province || undefined,
+        city: city || undefined,
+        district: district || undefined
       }
       const response = await chatService.createReport(data)
       setReportResult(response)

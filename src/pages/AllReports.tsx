@@ -780,15 +780,15 @@ export function AllReports() {
                   <div className="grid grid-cols-2 gap-4 relative z-10 font-sans">
                     <div className="space-y-1">
                       <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Wilayah Provinsi</span>
-                      <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.province || '-'}</span>
+                      <span className="text-xs font-semibold text-zinc-200 block truncate" title={selectedReport.province}>{selectedReport.province || '-'}</span>
                     </div>
                     <div className="space-y-1">
                       <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Kota / Kabupaten</span>
-                      <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.city || '-'}</span>
+                      <span className="text-xs font-semibold text-zinc-200 block truncate" title={selectedReport.city}>{selectedReport.city || '-'}</span>
                     </div>
                     <div className="space-y-1">
                       <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Kecamatan / Desa</span>
-                      <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.district || '-'}</span>
+                      <span className="text-xs font-semibold text-zinc-200 block truncate" title={selectedReport.district}>{selectedReport.district || '-'}</span>
                     </div>
                     <div className="space-y-1">
                       <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Titik GPS</span>
@@ -796,7 +796,7 @@ export function AllReports() {
                         {isAdmin ? (
                           `${selectedReport.latitude?.toFixed(6)}, ${selectedReport.longitude?.toFixed(6)}`
                         ) : (
-                          <span className="text-rose-450 font-medium">🔒 Terproteksi</span>
+                          <span className="text-rose-455 font-medium">🔒 Terproteksi</span>
                         )}
                       </span>
                     </div>
@@ -934,15 +934,15 @@ export function AllReports() {
               <div className="grid grid-cols-2 gap-4 bg-zinc-900/40 p-4 rounded-xl border border-zinc-800/60 font-sans">
                 <div className="space-y-1">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Wilayah Provinsi</span>
-                  <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.province || '-'}</span>
+                  <span className="text-xs font-semibold text-zinc-200 block truncate" title={selectedReport.province}>{selectedReport.province || '-'}</span>
                 </div>
                 <div className="space-y-1">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Kota / Kabupaten</span>
-                  <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.city || '-'}</span>
+                  <span className="text-xs font-semibold text-zinc-200 block truncate" title={selectedReport.city}>{selectedReport.city || '-'}</span>
                 </div>
                 <div className="space-y-1">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Kecamatan / Desa</span>
-                  <span className="text-xs font-semibold text-zinc-200 block truncate">{selectedReport.district || '-'}</span>
+                  <span className="text-xs font-semibold text-zinc-200 block truncate" title={selectedReport.district}>{selectedReport.district || '-'}</span>
                 </div>
                 <div className="space-y-1">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">Titik GPS</span>

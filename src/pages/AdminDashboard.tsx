@@ -299,12 +299,12 @@ function InteractiveTrendChart({ reports }: { reports: any[] }) {
           {/* Gradients */}
           <defs>
             <linearGradient id="chart-area-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.00" />
+              <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.00" />
             </linearGradient>
             <linearGradient id="chart-line-grad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#10b981" />
-              <stop offset="100%" stopColor="#059669" />
+              <stop offset="0%" stopColor="#4f46e5" />
+              <stop offset="100%" stopColor="#3b82f6" />
             </linearGradient>
             <filter id="glow-shadow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="4" result="blur" />
@@ -350,7 +350,7 @@ function InteractiveTrendChart({ reports }: { reports: any[] }) {
                 y1={paddingY} 
                 x2={mousePos.x} 
                 y2={paddingY + chartHeight} 
-                stroke="#10b981" 
+                stroke="#4f46e5" 
                 strokeWidth="1" 
                 strokeDasharray="2,2" 
                 opacity="0.6"
@@ -361,7 +361,7 @@ function InteractiveTrendChart({ reports }: { reports: any[] }) {
                 cx={mousePos.x} 
                 cy={mousePos.y} 
                 r="7" 
-                fill="#10b981" 
+                fill="#4f46e5" 
                 opacity="0.3"
                 className="animate-ping"
               />
@@ -369,8 +369,8 @@ function InteractiveTrendChart({ reports }: { reports: any[] }) {
                 cx={mousePos.x} 
                 cy={mousePos.y} 
                 r="4.5" 
-                fill="#10b981" 
-                stroke="#022c22" 
+                fill="#4f46e5" 
+                stroke="#1e1b4b" 
                 strokeWidth="1.5"
               />
             </>
@@ -1890,6 +1890,20 @@ export function AdminDashboard() {
       console.error('Failed to load staff:', err)
     }
   }, [])
+
+  const handleDeleteStaff = async (id: string, name: string) => {
+    if (confirm(`Apakah Anda yakin ingin menghapus akun staf "${name}" secara permanen? Akun ini tidak akan dapat login kembali.`)) {
+      try {
+        const res = await adminService.deleteStaffUser(id)
+        if (res.success) {
+          alert(res.message || 'Akun staf berhasil dihapus secara permanen.')
+          loadStaff()
+        }
+      } catch (err: any) {
+        alert(err.message || 'Gagal menghapus akun staf.')
+      }
+    }
+  }
 
   const loadHoaxes = useCallback(async (p = hoaxPage, search = hoaxSearch) => {
     try {
@@ -3920,6 +3934,16 @@ export function AdminDashboard() {
                                 staff.role === 'admin' ? 'bg-sky-950/50 border-sky-900/40 text-sky-400' :
                                 'bg-zinc-950 border-zinc-800 text-zinc-400'
                               )}>{staff.role || 'petugas'}</span>
+
+                              {user?.role === 'superadmin' && staff.role !== 'superadmin' && (
+                                <button
+                                  onClick={() => handleDeleteStaff(staff.id, staff.nama_lengkap || staff.email)}
+                                  className="p-1.5 rounded-lg border border-zinc-800 bg-zinc-950 hover:bg-rose-950/30 hover:border-rose-900/50 text-zinc-400 hover:text-rose-455 transition cursor-pointer"
+                                  title="Hapus Akun Staf"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              )}
                             </div>
                           </motion.div>
                         ))

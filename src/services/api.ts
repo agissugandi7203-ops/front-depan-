@@ -483,6 +483,14 @@ export const adminService = {
   },
 
   /**
+   * Hapus akun staf (superadmin)
+   */
+  deleteStaffUser: async (id: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.delete<{ success: boolean; message: string }>(`/api/admin/staff/${id}`)
+    return response.data
+  },
+
+  /**
    * Ambil database kata kunci hoaks WhatsApp (admin/superadmin)
    */
   getHoaxes: async (search?: string, page = 1, limit = 50): Promise<{ hoaxes: any[]; total: number; page: number; totalPages: number; usingFallback: boolean }> => {

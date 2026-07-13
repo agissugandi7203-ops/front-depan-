@@ -13,7 +13,7 @@ const CitizenReportModal = React.lazy(() => import('./CitizenReportModal').then(
 const SearchResultsSidebar = React.lazy(() => import('./SearchResultsSidebar').then(m => ({ default: m.SearchResultsSidebar })))
 
 import { Button } from '@/components/ui/button'
-import { Home, Menu, X, FileText, Activity, Users, Wifi, WifiOff, AlertTriangle } from 'lucide-react'
+import { Home, Menu, X, FileText, Activity, Users, Wifi, WifiOff, AlertTriangle, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { useAuthModalStore } from '@/store/authModalStore'
@@ -489,48 +489,102 @@ export function ChatInterface() {
           style={{ overflowAnchor: 'none' }}
         >
           {displayedMessages.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="h-full flex flex-col items-center justify-center px-4 text-center select-none"
-            >
-              {/* Icon */}
-              <img src="/assets/logo/komunitas.png" alt="KOMUNITAS Logo" className="w-10 h-10 object-contain rounded-md mb-5" loading="lazy" />
+            activeReportId && activeReport ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="h-full flex flex-col items-center justify-center px-6 text-center select-none max-w-md mx-auto"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-indigo-950/50 border border-indigo-800/60 flex items-center justify-center mb-5 text-indigo-400">
+                  <MessageSquare className="w-5 h-5" />
+                </div>
 
-              {/* Copy */}
-              <h3 className="text-[17px] font-semibold text-zinc-100 tracking-[-0.03em] mb-2">
-                Selamat datang di KOMUNITAS
-              </h3>
-              <p className="text-[13px] text-zinc-500 leading-relaxed max-w-xs mb-8">
-                Tanyakan apa saja seputar layanan publik, perlindungan sosial, atau validasi informasi.
-              </p>
+                <h3 className="text-[16px] font-bold text-zinc-100 tracking-tight mb-2 font-sans">
+                  Hubungi Petugas & Admin Pelayanan
+                </h3>
+                <p className="text-[12px] text-zinc-400 leading-relaxed mb-6 font-sans">
+                  Anda terhubung langsung dengan petugas layanan. Silakan sampaikan keluhan, pertanyaan, atau bukti tambahan mengenai laporan aduan Anda di kolom obrolan bawah.
+                </p>
 
-              {/* Suggestions */}
-              <div className="flex flex-col gap-2 w-full max-w-sm">
-                {SUGGESTED.map((s, i) => {
-                  const Icon = s.icon
-                  return (
-                    <motion.button
-                      key={i}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.08 + 0.2, duration: 0.3 }}
-                      className="group flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:border-zinc-700 text-left transition-all duration-200"
-                      onClick={() => handleSendMessage(s.text)}
-                    >
-                      <div className="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 group-hover:border-zinc-600 flex items-center justify-center shrink-0 transition-colors">
-                        <Icon className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] text-zinc-500 font-medium tracking-wide mb-0.5">{s.label}</p>
-                        <p className="text-[12px] text-zinc-300 leading-snug">{s.text}</p>
-                      </div>
-                    </motion.button>
-                  )
-                })}
-              </div>
-            </motion.div>
+                {/* Bento Card Ringkasan Aduan */}
+                <div className="w-full bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-md rounded-2xl p-5 text-left space-y-3 font-sans">
+                  <div className="text-[9px] font-bold uppercase tracking-wider text-indigo-400 font-mono">
+                    Konteks Pengaduan
+                  </div>
+                  <div className="h-px bg-zinc-805/60 bg-zinc-800/60" />
+                  
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <span className="text-[10px] text-zinc-500 block mb-0.5">Kategori</span>
+                      <span className="font-semibold text-zinc-200">{activeReport.category}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-zinc-500 block mb-0.5">Status</span>
+                      <span className="inline-flex items-center gap-1.5 font-bold text-zinc-200">
+                        <span className={cn("h-1.5 w-1.5 rounded-full", 
+                          activeReport.status === 'Menunggu' && "bg-amber-400 animate-pulse",
+                          activeReport.status === 'Diproses' && "bg-sky-400 animate-pulse",
+                          activeReport.status === 'Selesai' && "bg-emerald-400",
+                          activeReport.status === 'Ditolak' && "bg-rose-400"
+                        )} />
+                        {activeReport.status}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-1.5">
+                    <span className="text-[10px] text-zinc-500 block mb-0.5">Uraian Masalah</span>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed line-clamp-2">
+                      {activeReport.description}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="h-full flex flex-col items-center justify-center px-4 text-center select-none"
+              >
+                {/* Icon */}
+                <img src="/assets/logo/komunitas.png" alt="KOMUNITAS Logo" className="w-10 h-10 object-contain rounded-md mb-5" loading="lazy" />
+
+                {/* Copy */}
+                <h3 className="text-[17px] font-semibold text-zinc-100 tracking-[-0.03em] mb-2">
+                  Selamat datang di KOMUNITAS
+                </h3>
+                <p className="text-[13px] text-zinc-500 leading-relaxed max-w-xs mb-8">
+                  Tanyakan apa saja seputar layanan publik, perlindungan sosial, atau validasi informasi.
+                </p>
+
+                {/* Suggestions */}
+                <div className="flex flex-col gap-2 w-full max-w-sm">
+                  {SUGGESTED.map((s, i) => {
+                    const Icon = s.icon
+                    return (
+                      <motion.button
+                        key={i}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.08 + 0.2, duration: 0.3 }}
+                        className="group flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:border-zinc-700 text-left transition-all duration-200"
+                        onClick={() => handleSendMessage(s.text)}
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 group-hover:border-zinc-600 flex items-center justify-center shrink-0 transition-colors">
+                          <Icon className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] text-zinc-500 font-medium tracking-wide mb-0.5">{s.label}</p>
+                          <p className="text-[12px] text-zinc-300 leading-snug">{s.text}</p>
+                        </div>
+                      </motion.button>
+                    )
+                  })}
+                </div>
+              </motion.div>
+            )
           ) : (
             <div className="max-w-5xl mx-auto w-full py-4 pb-32 px-4 md:px-6">
               {displayedMessages.map((message, index) => (

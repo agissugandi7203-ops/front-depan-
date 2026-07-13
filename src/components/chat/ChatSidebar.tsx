@@ -64,12 +64,12 @@ export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, active
       setLoadingReports(true)
       try {
         if (isAuthenticated && user) {
-          const emailQuery = user.email || ''
-          const phoneQuery = user.nomor_telepon || ''
+          const emailQuery = user.email?.trim() || ''
+          const phoneQuery = user.nomor_telepon?.trim() || ''
           
           const promises = []
-          if (emailQuery) promises.push(citizenService.getReports(emailQuery))
-          if (phoneQuery) promises.push(citizenService.getReports(phoneQuery))
+          if (emailQuery && emailQuery !== '-') promises.push(citizenService.getReports(emailQuery))
+          if (phoneQuery && phoneQuery !== '-') promises.push(citizenService.getReports(phoneQuery))
           
           const results = await Promise.all(promises)
           const allReports = results.flatMap(res => res.reports || [])
@@ -82,19 +82,19 @@ export const ChatSidebar = memo(function ChatSidebar({ onOpenReportModal, active
             const contact = report.reporter_contact?.trim().toLowerCase() || ''
             const userEmail = user.email?.trim().toLowerCase() || ''
             const userPhone = user.nomor_telepon?.trim() || ''
-            return (userEmail && contact === userEmail) || (userPhone && contact === userPhone)
+            return (userEmail && userEmail !== '-' && contact === userEmail) || (userPhone && userPhone !== '-' && contact === userPhone)
           })
           
           setReports(userReports)
         } else {
-          const contact = localStorage.getItem('komunitas_guest_contact') || ''
-          if (contact) {
+          const contact = localStorage.getItem('komunitas_guest_contact')?.trim() || ''
+          if (contact && contact !== '-') {
             const res = await citizenService.getReports(contact)
             if (res && res.reports) {
               // STRICT CLIENT-SIDE SESSION FILTERING: Ensure reports only match guest contact
               const guestReports = res.reports.filter(report => {
                 const rContact = report.reporter_contact?.trim().toLowerCase() || ''
-                return rContact === contact.trim().toLowerCase()
+                return rContact === contact.toLowerCase()
               })
               setReports(guestReports)
             } else {
